@@ -1,3 +1,7 @@
-# ignore dependencies installed alongside
+# ignore SIF file for running container
+*.sif
+.singularity**
+
+# ignore dependencies I've downloaded and unpacked for reference
 hdf5-1.12.1/**
 HighFive/**
