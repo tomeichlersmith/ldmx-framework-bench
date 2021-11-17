@@ -1,0 +1,3 @@
+# ignore dependencies installed alongside
+hdf5-1.12.1/**
+HighFive/**
