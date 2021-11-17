@@ -77,3 +77,10 @@ git checkout v2.3.1 # go to most recent release
 ```
 cmake -B build -S . -DCMAKE_INSTALL_PREFIX=../hdf5-1.12.1/install
 ```
+3. "Build" and Install
+We build tests by default, we want to do this "build" so that a cmake config file is generated.
+```
+cd build
+make install
+```
+

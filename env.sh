@@ -1,3 +1,4 @@
+#!/bin/bash
 
 # make sure upgraded cmake is available
 export PATH=$HOME/.local/bin:${PATH}
