@@ -5,3 +5,10 @@
 # ignore dependencies I've downloaded and unpacked for reference
 hdf5-1.12.1/**
 HighFive/**
+
+# ignore build and install dirs
+build**
+.container-install**
+
+# ignore data files
+*.h5

@@ -628,8 +628,8 @@ _ldmx_complete_directory() {
 ###############################################################################
 _ldmx_complete_command() {
   # generate up-to-date list of options
-  local _options="$@ cmake make python3 python"
-  for ldmx_executable in ${LDMX_BASE}/ldmx-sw/install/bin/*; do
+  local _options="$@ cmake make python3 python h5dump h5clear h5copy h5debug h5diff h5dump h5format_convert h5import h5jam h5ls h5mkgrp h5perf_serial h5redeploy h5repack h5repart h5stat h5unjam h5watch"
+  for ldmx_executable in ${LDMX_BASE}/.container-install/bin/*; do
     _options="$_options $(basename $ldmx_executable)"
   done
 
