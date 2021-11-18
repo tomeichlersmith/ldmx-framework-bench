@@ -28,17 +28,22 @@ HIGHFIVE_REGISTER_TYPE(Size2D, create_compound_Size2D)
 
 int main() {
     const std::string FILE_NAME("compounds_test.h5");
-    const std::string DATASET_NAME("dims");
 
     HighFive::File file(FILE_NAME, HighFive::File::Truncate);
+
+    HighFive::DataSpace space({1,1},{1,HighFive::DataSpace::UNLIMITED});
+    HighFive::DataSetCreateProps props;
+    props.add(HighFive::Chunking(std::vector<hsize_t>{1,1}));
 
     auto t1 = create_compound_Size2D();
     t1.commit(file, "Size2D");
 
+    auto dataset = file.createDataSet(
+        "entries", space, create_compound_Size2D(), props);
+
     std::vector<Size2D> dims = {{1., 2.5}, {3., 4.5}};
-    auto dataset = file.createDataSet(DATASET_NAME, dims);
-
-    auto g1 = file.createGroup("group1");
-    g1.createAttribute(DATASET_NAME, dims);
-
+    for (auto const& d : dims) {
+      std::vector<Size2D> entry{1,d};
+      dataset.write(entry);
+    }
 }
