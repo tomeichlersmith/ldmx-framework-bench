@@ -15,8 +15,8 @@
 
 class MyFile {
   H5Easy::File h5_file_;
-  long unsigned int i_entry_;
-  long unsigned int entries_;
+  long int i_entry_;
+  long int entries_;
  public:
   class MyGroup {
     MyFile& file_;
@@ -35,12 +35,17 @@ class MyFile {
   };
  public:
   MyFile(const std::string& name = "test.h5", bool write = false)
-      : h5_file_{name, write ? HighFive::File::Truncate : HighFive::File::ReadOnly}, 
-    i_entry_{0}, entries_{0} {
-
-    if (not write) {
+      : h5_file_{name, write ? HighFive::File::Truncate : HighFive::File::ReadOnly} {
+    if (write) {
+      i_entry_ = 0; 
+      entries_ = 0; // not started yet
+      // using 0 instead of -1 here means that file.next()
+      // should be called at the end of the loop while writing
+    } else {
       // need to grab number of entries from specific data set
       entries_ = H5Easy::getSize(h5_file_,"i_entry");
+      i_entry_ = -1; // not started yet
+      // goes up to valid index upon entry into 'while' loop
     }
   }
 
@@ -88,6 +93,7 @@ struct Size2D {
     width = g.load<double>("width");
     height = g.load<double>("height");
   }
+  // for testing
   bool operator!=(Size2D const& other) {
     return width != other.width or height != other.height;
   }
@@ -115,7 +121,7 @@ int main() {
   {
     MyFile file("test.h5");
     std::size_t i_entry_actual{0};
-    do {
+    while (file.next()) {
       auto d = file.load<Size2D>("dims");
       if (d != dims.at(i_entry_actual)) {
         std::cout << "error reading dims" << std::endl;
@@ -132,6 +138,6 @@ int main() {
       }
 
       i_entry_actual++;
-    } while (file.next());
+    }
   }
 }
