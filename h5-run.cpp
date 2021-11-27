@@ -13,21 +13,6 @@
 #include <highfive/H5Easy.hpp>
 #include <type_traits>
 
-/*
- * Type deduction and specialization structs for load/save
-template <typename T>
-struct loader {
-  static T load(group,std::string const& name) {
-    T ret;
-    ret.load(subgroup,name);
-    return ret;
-  }
-}
-
-template <typename T>
-using load = loader<T>::load
-*/
-
 class MyFile {
   H5Easy::File h5_file_;
   bool write_;
@@ -51,6 +36,38 @@ class MyFile {
       return file_.load<T>(name_+"/"+var_name);
     }
   };
+  
+ public:
+  /*
+   * Default serializer is for all user classes
+   *  we assume that user classes have two member
+   *  functions defined with specific signatures.
+  template <typename T>
+  struct serializer {
+    static T load(MyGroup g,std::string const& name) {
+      T ret;
+      ret.load(MyGroup(g,name));
+      return ret;
+    }
+    static void save(MyGroup g,std::string const& name, T const& val) {
+      val.save(MyGroup(g,name));
+    }
+  };
+
+   * Specialization of vector tyes
+  template <typename ContentType>
+  struct serializer<std::vector<ContentType>> {
+    static std::vector<ContentType> load(MyGroup g, std::string const& name) {
+      std::vector<ContentType> ret(g.load<int>("size"));
+      // construct objects
+      return ret;
+    }
+    static void save(MyGroup g, std::string const& name, std::vector<ContentType> const& vec) {
+
+    }
+  };
+   */
+
  public:
   MyFile(const std::string& name = "test.h5", bool write = false)
       : h5_file_{name, write ? HighFive::File::Truncate : HighFive::File::ReadOnly}, write_{write}, i_entry_{0}, entries_{0} {
@@ -101,10 +118,23 @@ class MyFile {
       sub_entries_[name] = i_entry_;
     }
     auto begin = sub_entries_.at(name);
-    H5Easy::dump(h5_file_, name+"/begin", begin, {i_entry_});
-    H5Easy::dump(h5_file_, name+"/end", begin+vec.size(), {i_entry_});
+    this->save(name+"/size", vec.size());
     for (std::size_t i_vec{0}; i_vec < vec.size(); i_vec++)
-      H5Easy::dump(h5_file_, name+"/values", vec.at(i_vec), {begin+i_vec});
+      H5Easy::dump(h5_file_, name+"/data", vec.at(i_vec), {begin+i_vec});
+    sub_entries_[name] += vec.size();
+  }
+
+  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>,bool> = true>
+  std::vector<T> load_vector(std::string const& name) {
+    auto sub_entry_it{sub_entries_.find(name)};
+    if (sub_entry_it == sub_entries_.end()) {
+      sub_entries_[name] = i_entry_;
+    }
+    auto begin = sub_entries_.at(name);
+    std::size_t len{H5Easy::load<std::size_t>(h5_file_, name+"/size", {begin})};
+    std::vector<T> vec(len);
+    for (std::size_t i_vec{0}; i_vec < len; i_vec++)
+      vec[i_vec] = H5Easy::load<T>(h5_file_, name+"/data", {begin+i_vec});
     sub_entries_[name] += vec.size();
   }
 };
@@ -164,6 +194,18 @@ int main() {
       auto i = file.load<int>("i_entry");
       if (i != i_entries.at(i_entry_actual)) {
         std::cout << "error reading i_entry" << std::endl;
+      }
+
+      auto vec = file.load_vector<int>("nested_entries");
+      if (vec.size() != entry_entries.at(i_entry_actual).size()) {
+        std::cout << "error reading nested vec" << std::endl;
+        continue;
+      }
+      for (std::size_t i_vec{0}; i_vec < vec.size(); i_vec++) {
+        if (vec.at(i_vec) != entry_entries.at(i_entry_actual).at(i_vec)) {
+          std::cout << "error reading values in nested vec" << std::endl;
+          break;
+        }
       }
 
       i_entry_actual++;
