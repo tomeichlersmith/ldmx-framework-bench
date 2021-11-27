@@ -34,7 +34,10 @@ endif()
 
 find_package(HighFive REQUIRED)
 
-add_executable(h5-run h5-run.cpp)
-target_link_libraries(h5-run HighFive)
-install(TARGETS h5-run DESTINATION bin)
+add_library(fire_h5 INTERFACE)
+target_include_directories(fire_h5 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
+target_link_libraries(fire_h5 INTERFACE HighFive)
 
+add_library(fire::h5 ALIAS fire_h5)
+
+add_subdirectory(test)
