@@ -1,5 +1,9 @@
 # ldmx-rootless
 
+<a href="https://github.com/tomeichlersmith/ldmx-rootless/actions" alt="Actions">
+    <img src="https://github.com/tomeichlersmith/ldmx-rootless/workflows/CI/badge.svg" />
+</a>
+
 Trying to drag ldmx-sw into the 21st century by removing our dependency on the archaic ROOT.
 
 ## Environment Notes
