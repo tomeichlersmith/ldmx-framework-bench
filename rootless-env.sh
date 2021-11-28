@@ -150,7 +150,10 @@ if hash docker &> /dev/null; then
     for dir_to_mount in "${LDMX_CONTAINER_MOUNTS[@]}"; do
       _mounts="$_mounts -v $dir_to_mount:$dir_to_mount"
     done
-    docker run --rm -it -e LDMX_BASE \
+    local _interactive=""
+    tty -s && _interactive="-it"
+    docker run --rm ${_interactive} \
+      -e LDMX_BASE \
       -e DISPLAY=${LDMX_CONTAINER_DISPLAY}:0 \
       -v /tmp/.X11-unix:/tmp/.X11-unix \
       $_mounts \
