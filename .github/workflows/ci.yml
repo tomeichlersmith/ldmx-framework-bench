@@ -14,15 +14,13 @@ on:
 # workflow consists of one building and testing job
 jobs:
   test:
-    needs: build
-    if: ${{needs.build.outputs.test_tag != 'noop'}}
     runs-on: ubuntu-latest
     defaults:
       run:
         shell: bash
     steps:
     - 
-      name: Get Env Script
+      name: Get Repository
       uses: actions/checkout@v2
     -
       name: Test the Build
