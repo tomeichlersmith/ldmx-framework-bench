@@ -34,38 +34,6 @@ class File {
   };
 
  public:
-  /*
-   * Default serializer is for all user classes
-   *  we assume that user classes have two member
-   *  functions defined with specific signatures.
-  template <typename T>
-  struct serializer {
-    static T load(Group g,std::string const& name) {
-      T ret;
-      ret.load(Group(g,name));
-      return ret;
-    }
-    static void save(Group g,std::string const& name, T const& val) {
-      val.save(Group(g,name));
-    }
-  };
-
-   * Specialization of vector tyes
-  template <typename ContentType>
-  struct serializer<std::vector<ContentType>> {
-    static std::vector<ContentType> load(Group g, std::string const& name) {
-      std::vector<ContentType> ret(g.load<int>("size"));
-      // construct objects
-      return ret;
-    }
-    static void save(Group g, std::string const& name, std::vector<ContentType>
-  const& vec) {
-
-    }
-  };
-   */
-
- public:
   File(const std::string& name = "test.h5", bool write = false)
       : h5_file_{name,
                  write ? HighFive::File::Truncate : HighFive::File::ReadOnly},
