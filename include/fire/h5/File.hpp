@@ -132,8 +132,7 @@ class File {
       sub_entries_[name] = i_entry_;
     }
     auto begin = sub_entries_.at(name);
-    std::size_t len{
-        H5Easy::load<std::size_t>(h5_file_, name + "/size", {begin})};
+    std::size_t len{this->load<std::size_t>(name+"/size")};
     std::vector<T> vec(len);
     for (std::size_t i_vec{0}; i_vec < len; i_vec++)
       vec[i_vec] = H5Easy::load<T>(h5_file_, name + "/data", {begin + i_vec});
