@@ -227,40 +227,63 @@ class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
 };  // DataSet<AtomicType>
 
 /**
- * Data set of vector types
-template <typename ContentType, typename H5Easy::File>
-class DataSet<std::vector<ContentType>, H5Easy::File> {
- public:
-  void load() { std::size_t len; }
-
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  void save_vector(std::string const& name, std::vector<T> const& vec) {
-    auto sub_entry_it{sub_entries_.find(name)};
-    if (sub_entry_it == sub_entries_.end()) {
-      sub_entries_[name] = i_entry_;
-    }
-    auto begin = sub_entries_.at(name);
-    this->save(name + "/size", vec.size());
-    for (std::size_t i_vec{0}; i_vec < vec.size(); i_vec++)
-      H5Easy::dump(h5_file_, name + "/data", vec.at(i_vec), {begin + i_vec});
-    sub_entries_[name] += vec.size();
-  }
-
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  std::vector<T> load_vector(std::string const& name) {
-    auto sub_entry_it{sub_entries_.find(name)};
-    if (sub_entry_it == sub_entries_.end()) {
-      sub_entries_[name] = i_entry_;
-    }
-    auto begin = sub_entries_.at(name);
-    std::size_t len{this->load<std::size_t>(name+"/size")};
-    std::vector<T> vec(len);
-    for (std::size_t i_vec{0}; i_vec < len; i_vec++)
-      vec[i_vec] = H5Easy::load<T>(h5_file_, name + "/data", {begin + i_vec});
-    sub_entries_[name] += vec.size();
-  }
-};
+ * Vectors
+ *
+ * @note We assume that the load/save is done sequentially.
+ * This assumption is made because (1) it is common and (2)
+ * it allows us to not have to store as much metadata about the vectors.
  */
+template <typename ContentType>
+class DataSet<std::vector<ContentType>> : public AbstractDataSet<std::vector<ContentType>> {
+ public:
+   /**
+    * We create two child data sets, one to hold the successive sizes of the vectors
+    * and one to hold all of the data in all of the vectors serially.
+    */
+  DataSet(std::string const& name, std::vector<ContentType>* handle = nullptr)
+     : AbstractDataSet<std::vector<ContentType>>(name,handle), size_{name+"/size"}, data_{name+"/data"}, i_data_entry_{0} {}
+
+  /**
+   * Load a vector from the input file
+   *
+   * @note We assume that the loads are done sequentially.
+   *
+   * We read the next size and then read that many items from
+   * the content data set into the vector handle.
+   */
+  void load(H5Easy::File& f, long unsigned int i_entry) {
+    size_.load(f,i_entry);
+    this->handle_->resize(size_.get());
+    for (std::size_t i_vec{0}; i_vec < size_.get(); i_vec++) {
+      data_.load(f,i_data_entry_++);
+      (*(this->handle_))[i_vec] = data_.get();
+    }
+  }
+
+  /**
+   * Save a vector to the output file
+   *
+   * @note We assume that the saves are done sequentially.
+   *
+   * We write the size and the content onto the end of their data sets.
+   */
+  void save(H5Easy::File& f, long unsigned int i_entry) {
+    size_.update(this->handle_->size());
+    size_.save(f,i_entry);
+    for (std::size_t i_vec{0}; i_vec < this->handle_->size(); i_vec++) {
+      data_.update(this->handle_->at(i_vec));
+      data_.save(f,i_data_entry_++);
+    }
+  }
+
+ private:
+  /// the data set of sizes of the vectors
+  DataSet<std::size_t> size_;
+  /// the data set holding the content of all the vectors
+  DataSet<ContentType> data_;
+  /// the entry in the content data set we are currently on
+  unsigned long int i_data_entry_;
+};
 
 }  // namespace h5
 }  // namespace fire
