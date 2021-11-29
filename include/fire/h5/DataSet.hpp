@@ -9,46 +9,71 @@
 namespace fire {
 namespace h5 {
 
-/// empty dataset base allowing recursion
-class AbstractDataSet {
+/**
+ * empty dataset base allowing recursion
+ * this does not have the type information
+ */
+class BaseDataSet {
  public:
-  virtual ~AbstractDataSet() = default;
+  virtual ~BaseDataSet() = default;
   virtual void load(long unsigned int i) = 0;
   virtual void save(long unsigned int i) = 0;
+};
+
+/**
+ * Type-specific base class to hold common
+ * dataset methods
+ */
+template <typename DataType>
+class AbstractDataSet : public BaseDataSet {
+ public:
+  AbstractDataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
+    : file_{f}, name_{name}, owner_{handle == nullptr} {
+    if (owner_) {
+      handle_ = new DataType;
+    } else {
+      handle_ = handle;
+    }
+  }
+  virtual ~AbstractDataSet() {
+    if (owner_) delete handle_;
+  }
+  virtual void load(long unsigned int i) = 0;
+  virtual void save(long unsigned int i) = 0;
+  virtual DataType const& get() { return *handle_; }
+  virtual void update(DataType const& val) {
+    *handle_ = val;
+  }
+ protected:
+  inline H5Easy::File& file() { return file_; }
+  inline DataType * handle() { return handle_; }
+  inline std::string const& name() const { return name_; }
+  inline bool owner() { return owner_; }
+ private:
+  H5Easy::File& file_;
+  std::string name_;
+  DataType* handle_;
+  bool owner_;
 };
 
 /**
  * General data set
  */
 template <typename DataType, typename Enable = void>
-class DataSet : public AbstractDataSet {
+class DataSet : public AbstractDataSet<DataType> {
  public:
   /// we own types when they are added directly (i.e. without the handle argument)
   //    we won't own types when they are members of higher level classes
   DataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
-      : file_{f}, name_{name}, owner_{handle == nullptr} {
-    if (owner_) {
-      handle_ = new DataType;
-    } else {
-      handle_ = handle;
-    }
-    handle_->attach(*this);
+      : AbstractDataSet<DataType>(f,name,handle) {
+    this->handle()->attach(*this);
   }
-  ~DataSet() {
-    if (owner_) delete handle_;
-  }
-
-  /// retrieve const reference to current data pointed to by this data set
-  DataType const& get() { return *handle_; }
-
-  /// update current data of this data set
-  void update(DataType const& data) { *handle_ = data; }
 
   /// attach a "column" of this dataset
   template <typename ColumnType>
   void attach(std::string const& name, ColumnType& col) {
     columns_.push_back(
-        std::make_unique<DataSet<ColumnType>>(file_, name_ + "/" + name, &col)
+        std::make_unique<DataSet<ColumnType>>(this->file(), this->name() + "/" + name, &col)
         );
   }
 
@@ -61,16 +86,8 @@ class DataSet : public AbstractDataSet {
   }
 
  private:
-  /// handle to file
-  H5Easy::File& file_;
-  /// name of this dataset
-  std::string name_;
-  /// we own the data
-  bool owner_;
-  /// pointer to current data
-  DataType* handle_;
   /// list of columns in this dataset
-  std::vector<std::unique_ptr<AbstractDataSet>> columns_;
+  std::vector<std::unique_ptr<BaseDataSet>> columns_;
 };  // general data set
 
 /**
@@ -78,37 +95,16 @@ class DataSet : public AbstractDataSet {
  */
 template <typename AtomicType>
 class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
-    : public AbstractDataSet {
+    : public AbstractDataSet<AtomicType> {
  public:
   /// we own types when they are added directly (i.e. without the handle argument)
   //    we won't own types when they are members of higher level classes
   DataSet(H5Easy::File& f, std::string const& name, AtomicType* handle = nullptr)
-      : file_{f}, name_{name}, owner_{handle == nullptr} {
-    if (owner_) {
-      handle_ = new AtomicType;
-    } else {
-      handle_ = handle;
-    }
-  }
-  ~DataSet() {
-    if (owner_) delete handle_;
-  }
-  AtomicType const& get() { return *handle_; }
-  void update(AtomicType const& val) { *handle_ = val; }
+      : AbstractDataSet<AtomicType>(f,name,handle) {}
   void load(long unsigned int i) {
-    *handle_ = H5Easy::load<AtomicType>(file_, name_, {i});
+    *(this->handle()) = H5Easy::load<AtomicType>(this->file(), this->name(), {i});
   }
-  void save(long unsigned int i) { H5Easy::dump(file_, name_, *handle_, {i}); }
-
- private:
-  /// handle to file
-  H5Easy::File& file_;
-  /// name of this dataset
-  std::string name_;
-  /// we own the data
-  bool owner_;
-  /// pointer to current data
-  AtomicType* handle_;
+  void save(long unsigned int i) { H5Easy::dump(this->file(), this->name(), *(this->handle()), {i}); }
 };
 
 /**

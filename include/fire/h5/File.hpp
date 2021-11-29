@@ -12,7 +12,7 @@ class File {
   bool write_;
   long unsigned int i_entry_;
   long unsigned int entries_;
-  std::unordered_map<std::string, std::unique_ptr<AbstractDataSet>> sets_;
+  std::unordered_map<std::string, std::unique_ptr<BaseDataSet>> sets_;
 
  public:
   File(const std::string& name = "test.h5", bool write = false)
