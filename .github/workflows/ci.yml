@@ -7,6 +7,9 @@ on:
       - '**'
     tags:
       - 'v*.*'
+    paths:
+      - '**' # on all changes
+      - '!**.md' # except markdown files
 
 # workflow consists of one building and testing job
 jobs:
