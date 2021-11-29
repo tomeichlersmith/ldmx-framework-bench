@@ -10,23 +10,65 @@ namespace fire {
 namespace h5 {
 
 /**
- * empty dataset base allowing recursion
- * this does not have the type information
+ * @class BaseDataSet
+ *
+ * Empty dataset base allowing recursion 
+ *
+ * This does not have the type information of the data
+ * stored in any of the derived datasets, it simply instructs
+ * the derived data sets to define a load and save mechanism
+ * for loading/saving the dataset from/to the file.
+ *
+ * This type should never be seen outside of the inner-workings
+ * of fire.
  */
 class BaseDataSet {
  public:
+  /**
+   * virtual destructor so inherited classes can be
+   * properly destructed.
+   */
   virtual ~BaseDataSet() = default;
+  /**
+   * pure virtual method for loading the input entry in the data set
+   */
   virtual void load(long unsigned int i) = 0;
+  /**
+   * pure virtual method for saving the input entry in the data set
+   */
   virtual void save(long unsigned int i) = 0;
 };
 
 /**
- * Type-specific base class to hold common
- * dataset methods
+ * @class AbstractDataSet
+ *
+ * Type-specific base class to hold common dataset methods.
+ * 
+ * Most (all I can think of?) have a shared initialization, destruction,
+ * getting and setting procedure. We can house these procedures in an 
+ * intermediary class in the inheritence tree.
+ *
+ * @tparam[in] DataType type of data being held in this set
  */
 template <typename DataType>
 class AbstractDataSet : public BaseDataSet {
  public:
+  /**
+   * Only constructor
+   *
+   * Passes on the handle to the file we are reading from or writing to.
+   * Defines the name of the data set and the handle to the current in-memory
+   * version of the data.
+   *
+   * If the handle is a nullptr, then we will own our own dynamically created
+   * copy of the data. If the handle is not a nullptr, then we assume a parent
+   * data set is holding the full object and we are simply holding a member variable,
+   * so we just copy the address into our handle.
+   *
+   * @param[in] f reference to file to read/write
+   * @param[in] name name of dataset
+   * @param[in] handle address of object already created (optional)
+   */
   AbstractDataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
     : file_{f}, name_{name}, owner_{handle == nullptr} {
     if (owner_) {
@@ -35,19 +77,51 @@ class AbstractDataSet : public BaseDataSet {
       handle_ = handle;
     }
   }
+
+  /**
+   * Destructor
+   *
+   * Delete our object if we own it, otherwise do nothing.
+   */
   virtual ~AbstractDataSet() {
     if (owner_) delete handle_;
   }
+
+  /// pass on pure virtual load function
   virtual void load(long unsigned int i) = 0;
+  /// pass on pure virtual load function
   virtual void save(long unsigned int i) = 0;
+
+  /**
+   * Get the current in-memory data object
+   *
+   * @note virtual so that derived data sets
+   * could specialize this, but I can't think of a reason to do so.
+   *
+   * @return const reference to current data
+   */
   virtual DataType const& get() { return *handle_; }
+
+  /**
+   * Update the in-memory data object with the passed value.
+   *
+   * @note virtual so that derived data sets
+   * could specialize this, but I can't think of a reason to do so.
+   *
+   * @param[in] val new value the in-memory object should be
+   */
   virtual void update(DataType const& val) {
     *handle_ = val;
   }
+
  protected:
+  /// reference to current file
   H5Easy::File& file_;
+  /// name of data set
   std::string name_;
+  /// handle on current object in memory
   DataType* handle_;
+  /// we own the object in memory
   bool owner_;
 };
 
