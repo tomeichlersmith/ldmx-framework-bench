@@ -45,11 +45,6 @@ class AbstractDataSet : public BaseDataSet {
     *handle_ = val;
   }
  protected:
-  inline H5Easy::File& file() { return file_; }
-  inline DataType * handle() { return handle_; }
-  inline std::string const& name() const { return name_; }
-  inline bool owner() { return owner_; }
- private:
   H5Easy::File& file_;
   std::string name_;
   DataType* handle_;
@@ -66,14 +61,14 @@ class DataSet : public AbstractDataSet<DataType> {
   //    we won't own types when they are members of higher level classes
   DataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
       : AbstractDataSet<DataType>(f,name,handle) {
-    this->handle()->attach(*this);
+    this->handle_->attach(*this);
   }
 
   /// attach a "column" of this dataset
   template <typename ColumnType>
   void attach(std::string const& name, ColumnType& col) {
     columns_.push_back(
-        std::make_unique<DataSet<ColumnType>>(this->file(), this->name() + "/" + name, &col)
+        std::make_unique<DataSet<ColumnType>>(this->file_, this->name_ + "/" + name, &col)
         );
   }
 
@@ -102,9 +97,9 @@ class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
   DataSet(H5Easy::File& f, std::string const& name, AtomicType* handle = nullptr)
       : AbstractDataSet<AtomicType>(f,name,handle) {}
   void load(long unsigned int i) {
-    *(this->handle()) = H5Easy::load<AtomicType>(this->file(), this->name(), {i});
+    *(this->handle_) = H5Easy::load<AtomicType>(this->file_, this->name_, {i});
   }
-  void save(long unsigned int i) { H5Easy::dump(this->file(), this->name(), *(this->handle()), {i}); }
+  void save(long unsigned int i) { H5Easy::dump(this->file_, this->name_, *(this->handle_), {i}); }
 };
 
 /**
