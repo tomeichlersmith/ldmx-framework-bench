@@ -22,7 +22,7 @@ and the default container image be the hdf5 image.
 - More Testing
   - [ ] user class with container member variable
   - [ ] container of user class
-  - [ ] user class with user class member variable
+  - [x] user class with user class member variable
 - Port H5Easy file here and introduce our specializations
   - [ ] 1D buffering mechanism
   - [ ] high level of compression
