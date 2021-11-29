@@ -5,9 +5,12 @@
 #include "fire/h5/File.hpp"
 #include "fire/h5/DataSet.hpp"
 
-struct Size2D {
+class Size2D {
   double width;
   double height;
+ public:
+  Size2D() = default; // empty, default constructor necessary for serialization
+  Size2D(double w, double h) : width(w), height(h) {}
   void attach(fire::h5::DataSet<Size2D> &set) {
     set.attach("width",width);
     set.attach("height",height);
@@ -20,7 +23,10 @@ struct Size2D {
 
 BOOST_AUTO_TEST_CASE(user_class) {
   std::string filename{"user_class.h5"};
-  std::vector<Size2D> dims = {{1., 2.5}, {3., 4.5}, {-9.8, -420.}};
+  std::vector<Size2D> dims;
+  dims.emplace_back(1.,2.5);
+  dims.emplace_back(3.,4.5);
+  dims.emplace_back(-9.8,-420.);
 
   try { // Writing
     fire::h5::File file(filename,true);
