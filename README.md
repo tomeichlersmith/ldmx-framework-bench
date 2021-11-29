@@ -15,8 +15,10 @@ and the default container image be the hdf5 image.
 
 ## To-Do
 
-- [ ] Serialize `std::vector` and `std::map` (and other STL containers?)
-- [ ] Split `fire::h5::File` into the actual file and the event bus
+- General
+  - [ ] Serialize `std::vector` and `std::map` (and other STL containers?)
+  - [ ] Split `fire::h5::File` into the actual file and the event bus
+  - [ ] Input file able to loop over multiple on-disk files as if one file
 - More Testing
   - [ ] user class with container member variable
   - [ ] container of user class
@@ -25,4 +27,7 @@ and the default container image be the hdf5 image.
   - [ ] 1D buffering mechanism
   - [ ] high level of compression
   - [ ] chunking
-
+- Move into Framework
+  - [ ] Rename Framework -> fire
+  - [ ] Pass names as an added layer of group
+  - [ ] Read/Write RunHeaders
