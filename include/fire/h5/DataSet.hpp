@@ -23,12 +23,20 @@ class AbstractDataSet {
 template <typename DataType, typename Enable = void>
 class DataSet : public AbstractDataSet {
  public:
-  /// ignore data_handle provided for high level classes
-  DataSet(H5Easy::File& f, std::string const& name, DataType* data_handle = nullptr)
-      : file_{f}, name_{name}, data_handle_{std::make_unique<DataType>()} {
-    data_handle_->attach(*this);
+  /// we own types when they are added directly (i.e. without the handle argument)
+  //    we won't own types when they are members of higher level classes
+  DataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
+      : file_{f}, name_{name}, owner_{handle == nullptr} {
+    if (owner_) {
+      handle_ = new DataType;
+    } else {
+      handle_ = handle;
+    }
+    handle_->attach(*this);
   }
-  ~DataSet() = default;
+  ~DataSet() {
+    if (owner_) delete handle_;
+  }
 
   /// retrieve const reference to current data pointed to by this data set
   DataType const& get() { return *data_handle_; }
@@ -57,8 +65,10 @@ class DataSet : public AbstractDataSet {
   H5Easy::File& file_;
   /// name of this dataset
   std::string name_;
+  /// we own the data
+  bool owner_;
   /// pointer to current data
-  std::unique_ptr<DataType> data_handle_;
+  DataType* handle_;
   /// list of columns in this dataset
   std::vector<std::unique_ptr<AbstractDataSet>> columns_;
 };  // general data set
@@ -70,8 +80,8 @@ template <typename AtomicType>
 class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
     : public AbstractDataSet {
  public:
-  /// we own atomic types when they are added directly,
-  //    we won't own atomic types when they are members of higher level classes
+  /// we own types when they are added directly (i.e. without the handle argument)
+  //    we won't own types when they are members of higher level classes
   DataSet(H5Easy::File& f, std::string const& name, AtomicType* handle = nullptr)
       : file_{f}, name_{name}, owner_{handle == nullptr} {
     if (owner_) {
