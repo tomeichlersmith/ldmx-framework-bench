@@ -39,10 +39,10 @@ class DataSet : public AbstractDataSet {
   }
 
   /// retrieve const reference to current data pointed to by this data set
-  DataType const& get() { return *data_handle_; }
+  DataType const& get() { return *handle_; }
 
   /// update current data of this data set
-  void update(DataType const& data) { *data_handle_ = data; }
+  void update(DataType const& data) { *handle_ = data; }
 
   /// attach a "column" of this dataset
   template <typename ColumnType>
