@@ -31,13 +31,13 @@ class File {
     i_entry_++;
     if (write_) {
       if (should_save) {
-        for (auto& [_, set] : sets_) set->save(i_entry_ - 1);
+        for (auto& [_, set] : sets_) set->save(h5_file_, i_entry_ - 1);
       }
       entries_++;
       return true;
     } else {
       if (i_entry_ < entries_) {
-        for (auto& [_, set] : sets_) set->load(i_entry_);
+        for (auto& [_, set] : sets_) set->load(h5_file_, i_entry_);
         return true;
       } else
         return false;
@@ -49,7 +49,7 @@ class File {
     auto set_it{sets_.find(name)};
     if (set_it == sets_.end()) {
       // TODO prevent two add's of same 'name' per event
-      sets_[name] = std::make_unique<DataSet<DataType>>(h5_file_, name);
+      sets_[name] = std::make_unique<DataSet<DataType>>(name);
     }
     try {
       /// maybe throw bad_cast exception
@@ -66,9 +66,9 @@ class File {
     if (set_it == sets_.end()) {
       // check if file on disk by trying to create and load it
       //  this line won't throw an error because we haven't tried accessing the data yet
-      sets_[name] = std::make_unique<DataSet<DataType>>(h5_file_, name);
+      sets_[name] = std::make_unique<DataSet<DataType>>(name);
       //  this line may throw an error
-      sets_[name]->load(i_entry_);
+      sets_[name]->load(h5_file_, i_entry_);
     }
 
     // type casting, 'bad_cast' thrown if unable

@@ -32,11 +32,11 @@ class BaseDataSet {
   /**
    * pure virtual method for loading the input entry in the data set
    */
-  virtual void load(long unsigned int i) = 0;
+  virtual void load(H5Easy::File& f, long unsigned int i) = 0;
   /**
    * pure virtual method for saving the input entry in the data set
    */
-  virtual void save(long unsigned int i) = 0;
+  virtual void save(H5Easy::File& f, long unsigned int i) = 0;
 };
 
 /**
@@ -65,12 +65,11 @@ class AbstractDataSet : public BaseDataSet {
    * data set is holding the full object and we are simply holding a member variable,
    * so we just copy the address into our handle.
    *
-   * @param[in] f reference to file to read/write
    * @param[in] name name of dataset
    * @param[in] handle address of object already created (optional)
    */
-  AbstractDataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
-    : file_{f}, name_{name}, owner_{handle == nullptr} {
+  AbstractDataSet(std::string const& name, DataType* handle = nullptr)
+    : name_{name}, owner_{handle == nullptr} {
     if (owner_) {
       handle_ = new DataType;
     } else {
@@ -88,9 +87,9 @@ class AbstractDataSet : public BaseDataSet {
   }
 
   /// pass on pure virtual load function
-  virtual void load(long unsigned int i) = 0;
+  virtual void load(H5Easy::File& f, long unsigned int i) = 0;
   /// pass on pure virtual load function
-  virtual void save(long unsigned int i) = 0;
+  virtual void save(H5Easy::File& f, long unsigned int i) = 0;
 
   /**
    * Get the current in-memory data object
@@ -115,66 +114,117 @@ class AbstractDataSet : public BaseDataSet {
   }
 
  protected:
-  /// reference to current file
-  H5Easy::File& file_;
   /// name of data set
   std::string name_;
   /// handle on current object in memory
   DataType* handle_;
   /// we own the object in memory
   bool owner_;
-};
+};  // AbstractDataSet
 
 /**
  * General data set
+ *
+ * This is the top-level data set that will be used most often.
+ * It is meant to be used by a class which registers its member
+ * variables to this set via its 'attach' method.
+ *
+ * ```cpp
+ * class MyData {
+ *  public:
+ *   MyData() = default; // required by serialization technique
+ *   // other public members
+ *   void attach(fire::h5::DataSet<MyData>& set) {
+ *     set.attach("my_double",my_double_);
+ *   }
+ *  private:
+ *   double my_double_;
+ * };
+ * ```
  */
 template <typename DataType, typename Enable = void>
 class DataSet : public AbstractDataSet<DataType> {
  public:
-  /// we own types when they are added directly (i.e. without the handle argument)
-  //    we won't own types when they are members of higher level classes
-  DataSet(H5Easy::File& f, std::string const& name, DataType* handle = nullptr)
-      : AbstractDataSet<DataType>(f,name,handle) {
+  /**
+   * Default constructor
+   *
+   * After the intermediate class AbstractDataSet does the
+   * initialization, we call the 'attach' method of the data
+   * pointed to by our handle. This allows us to register
+   * its member variables with our own 'attach' method.
+   */
+  DataSet(std::string const& name, DataType* handle = nullptr)
+      : AbstractDataSet<DataType>(name,handle) {
     this->handle_->attach(*this);
   }
 
-  /// attach a "column" of this dataset
-  template <typename ColumnType>
-  void attach(std::string const& name, ColumnType& col) {
-    columns_.push_back(
-        std::make_unique<DataSet<ColumnType>>(this->file_, this->name_ + "/" + name, &col)
+  /**
+   * Loading this dataset from the file involves simply loading
+   * all of the members of the data type.
+   */
+  void load(H5Easy::File& f, long unsigned int i) {
+    for (auto& m : members_) m->load(f,i);
+  }
+
+  /*
+   * Saving this dataset from the file involves simply saving
+   * all of the members of the data type.
+   */
+  void save(H5Easy::File& f, long unsigned int i) {
+    for (auto& m : members_) m->save(f,i);
+  }
+
+  /**
+   * Attach a member object from the our data handle
+   *
+   * We create a new child DataSet so that we can recursively
+   * handle complex member variable types.
+   *
+   * @tparam[in] MemberType type of member variable we are attaching
+   * @param[in] name name of member variable
+   * @param[in] m reference of member variable
+   */
+  template <typename MemberType>
+  void attach(std::string const& name, MemberType& m) {
+    members_.push_back(
+        std::make_unique<DataSet<MemberType>>(this->name_ + "/" + name, &m)
         );
   }
 
-  void load(long unsigned int i) {
-    for (auto& col : columns_) col->load(i);
-  }
-
-  void save(long unsigned int i) {
-    for (auto& col : columns_) col->save(i);
-  }
-
  private:
-  /// list of columns in this dataset
-  std::vector<std::unique_ptr<BaseDataSet>> columns_;
-};  // general data set
+  /// list of members in this dataset
+  std::vector<std::unique_ptr<BaseDataSet>> members_;
+};  // DataSet
 
 /**
  * Atomic types
+ *
+ * Once we finally recurse down to actual fundamental ("atomic") types,
+ * we can start actually calling the file load and save methods.
+ *
+ * @TODO port H5Easy::File into our framework. We can specialize it
+ * to our purposes to improve performance.
  */
 template <typename AtomicType>
 class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
     : public AbstractDataSet<AtomicType> {
  public:
-  /// we own types when they are added directly (i.e. without the handle argument)
-  //    we won't own types when they are members of higher level classes
-  DataSet(H5Easy::File& f, std::string const& name, AtomicType* handle = nullptr)
-      : AbstractDataSet<AtomicType>(f,name,handle) {}
-  void load(long unsigned int i) {
-    *(this->handle_) = H5Easy::load<AtomicType>(this->file_, this->name_, {i});
+  /**
+   * We don't do any more initialization except which is handled by the AbstractDataSet
+   */
+  DataSet(std::string const& name, AtomicType* handle = nullptr)
+      : AbstractDataSet<AtomicType>(name,handle) {}
+  /**
+   * Call the H5Easy::load method with our atomic type and our name
+   */
+  void load(H5Easy::File& f, long unsigned int i) {
+    *(this->handle_) = H5Easy::load<AtomicType>(f, this->name_, {i});
   }
-  void save(long unsigned int i) { H5Easy::dump(this->file_, this->name_, *(this->handle_), {i}); }
-};
+  /**
+   * Call the H5Easy::save method with our atomic type and our name
+   */
+  void save(H5Easy::File& f, long unsigned int i) { H5Easy::dump(f, this->name_, *(this->handle_), {i}); }
+};  // DataSet<AtomicType>
 
 /**
  * Data set of vector types
