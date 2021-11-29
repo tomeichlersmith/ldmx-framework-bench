@@ -12,3 +12,17 @@ A container image with HDF5, Boost, and HighFive installed has been built in the
 repository on the hdf5 branch. I have copied over the `ldmx-env.sh` script here and modified it slightly
 as well as copied over the `.ldmxrc` file and updated it to have the current directory be the base directory
 and the default container image be the hdf5 image.
+
+## To-Do
+
+- [ ] Serialize `std::vector` and `std::map` (and other STL containers?)
+- [ ] Split `fire::h5::File` into the actual file and the event bus
+- More Testing
+  - [ ] user class with container member variable
+  - [ ] container of user class
+  - [ ] user class with user class member variable
+- Port H5Easy file here and introduce our specializations
+  - [ ] 1D buffering mechanism
+  - [ ] high level of compression
+  - [ ] chunking
+
