@@ -3,17 +3,14 @@
 #include <boost/test/unit_test.hpp>
 
 #include "fire/h5/File.hpp"
+#include "fire/h5/DataSet.hpp"
 
 struct Size2D {
   double width;
   double height;
-  void save(fire::h5::File::Group g) const {
-    g.save("width",width);
-    g.save("height",height);
-  }
-  void load(fire::h5::File::Group g) {
-    width = g.load<double>("width");
-    height = g.load<double>("height");
+  void attach(fire::h5::DataSet<Size2D> &set) {
+    set.attach("width",width);
+    set.attach("height",height);
   }
   // for testing
   bool operator==(Size2D const& other) {
@@ -25,25 +22,31 @@ BOOST_AUTO_TEST_CASE(user_class) {
   std::string filename{"user_class.h5"};
   std::vector<Size2D> dims = {{1., 2.5}, {3., 4.5}, {-9.8, -420.}};
 
-  BOOST_CHECK_NO_THROW({ // Writing
+  try { // Writing
     fire::h5::File file(filename,true);
     for (std::size_t i_entry{0}; i_entry < dims.size(); i_entry++) {
-      file.save("dims", dims.at(i_entry));
+      file.add("dims", dims.at(i_entry));
 
       // needed for event counting, standing in for event header
-      file.save("i_entry", i_entry);
+      file.add("i_entry", i_entry);
       file.next();
     }
-  });
+  } catch (std::exception const& e) {
+    std::cout << e.what() << std::endl;
+    BOOST_REQUIRE(false);
+  }
   
-  BOOST_CHECK_NO_THROW({ // Reading
+  try { // Reading
     fire::h5::File file(filename);
     std::size_t i_entry{0};
     do {
-      auto d = file.load<Size2D>("dims");
+      auto d = file.get<Size2D>("dims");
       BOOST_CHECK(d == dims.at(i_entry));
 
       i_entry++;
     } while (file.next());
-  });
+  } catch (std::exception const& e) {
+    std::cout << e.what() << std::endl;
+    BOOST_REQUIRE(false);
+  }
 }

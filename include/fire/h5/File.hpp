@@ -1,8 +1,8 @@
 #ifndef FIRE_H5_FILE_HPP
 #define FIRE_H5_FILE_HPP
 
-#include <highfive/H5Easy.hpp>
-#include <type_traits>
+#include <exception>
+#include "fire/h5/DataSet.hpp"
 
 namespace fire {
 namespace h5 {
@@ -12,26 +12,7 @@ class File {
   bool write_;
   long unsigned int i_entry_;
   long unsigned int entries_;
-  std::unordered_map<std::string, long unsigned int> sub_entries_;
-
- public:
-  class Group {
-    File& file_;
-    std::string name_;
-
-   public:
-    Group(File& f, std::string const& n) : file_{f}, name_{n} {}
-    template <typename T,
-              std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-    void save(std::string const& var_name, T const& var_val) {
-      file_.save(name_ + "/" + var_name, var_val);
-    }
-    template <typename T,
-              std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-    T load(std::string const& var_name) const {
-      return file_.load<T>(name_ + "/" + var_name);
-    }
-  };
+  std::unordered_map<std::string, std::unique_ptr<AbstractDataSet>> sets_;
 
  public:
   File(const std::string& name = "test.h5", bool write = false)
@@ -46,65 +27,57 @@ class File {
     }
   }
 
-  bool next() {
+  bool next(bool should_save = true) {
     i_entry_++;
     if (write_) {
+      if (should_save) {
+        for (auto& [_, set] : sets_) set->save(i_entry_ - 1);
+      }
       entries_++;
       return true;
     } else {
-      return i_entry_ < entries_;
+      if (i_entry_ < entries_) {
+        for (auto& [_, set] : sets_) set->load(i_entry_);
+        return true;
+      } else
+        return false;
     }
   }
 
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  void save(std::string const& name, T const& v) {
-    std::cout << name << " saving " << i_entry_ << std::endl;
-    H5Easy::dump(h5_file_, name, v, {i_entry_});
-  }
-
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  T load(std::string const& name) const {
-    std::cout << name << " loading " << i_entry_ << std::endl;
-    return H5Easy::load<T>(h5_file_, name, {i_entry_});
-  }
-
-  template <typename T, std::enable_if_t<std::is_class_v<T>, bool> = true>
-  void save(std::string const& name, T const& v) {
-    v.save(Group(*this, name));
-  }
-
-  template <typename T, std::enable_if_t<std::is_class_v<T>, bool> = true>
-  T load(std::string const& name) {
-    T v;
-    v.load(Group(*this, name));
-    return v;
-  }
-
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  void save_vector(std::string const& name, std::vector<T> const& vec) {
-    auto sub_entry_it{sub_entries_.find(name)};
-    if (sub_entry_it == sub_entries_.end()) {
-      sub_entries_[name] = i_entry_;
+  template <typename DataType>
+  void add(std::string const& name, DataType& data) {
+    auto set_it{sets_.find(name)};
+    if (set_it == sets_.end()) {
+      // TODO prevent two add's of same 'name' per event
+      sets_[name] = std::make_unique<DataSet<DataType>>(h5_file_, name);
     }
-    auto begin = sub_entries_.at(name);
-    this->save(name + "/size", vec.size());
-    for (std::size_t i_vec{0}; i_vec < vec.size(); i_vec++)
-      H5Easy::dump(h5_file_, name + "/data", vec.at(i_vec), {begin + i_vec});
-    sub_entries_[name] += vec.size();
+    try {
+      /// maybe throw bad_cast exception
+      dynamic_cast<DataSet<DataType>&>(*sets_[name]).update(data);
+    } catch (std::bad_cast const&) {
+      throw std::runtime_error("DataSet corresponding to " + name +
+                           " has different type.");
+    }
   }
 
-  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>, bool> = true>
-  std::vector<T> load_vector(std::string const& name) {
-    auto sub_entry_it{sub_entries_.find(name)};
-    if (sub_entry_it == sub_entries_.end()) {
-      sub_entries_[name] = i_entry_;
+  template <typename DataType>
+  DataType const& get(std::string const& name) {
+    auto set_it{sets_.find(name)};
+    if (set_it == sets_.end()) {
+      // check if file on disk by trying to create and load it
+      //  this line won't throw an error because we haven't tried accessing the data yet
+      sets_[name] = std::make_unique<DataSet<DataType>>(h5_file_, name);
+      //  this line may throw an error
+      sets_[name]->load(i_entry_);
     }
-    auto begin = sub_entries_.at(name);
-    std::size_t len{this->load<std::size_t>(name+"/size")};
-    std::vector<T> vec(len);
-    for (std::size_t i_vec{0}; i_vec < len; i_vec++)
-      vec[i_vec] = H5Easy::load<T>(h5_file_, name + "/data", {begin + i_vec});
-    sub_entries_[name] += vec.size();
+
+    // type casting, 'bad_cast' thrown if unable
+    try {
+      return dynamic_cast<DataSet<DataType>&>(*sets_[name]).get();
+    } catch (std::bad_cast const&) {
+      throw std::runtime_error("DataSet corresponding to " + name +
+                           " has different type.");
+    }
   }
 };  // File
 
