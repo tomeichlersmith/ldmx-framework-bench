@@ -38,6 +38,9 @@ class BaseDataSet {
    * pure virtual method for saving the input entry in the data set
    */
   virtual void save(H5Easy::File& f, long unsigned int i) = 0;
+ protected:
+  /// C-API object ID
+  hid_t id_;
 };
 
 /**
