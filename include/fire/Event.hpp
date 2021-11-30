@@ -1,15 +1,14 @@
-#ifndef FIRE_H5_FILE_HPP
-#define FIRE_H5_FILE_HPP
+#ifndef FIRE_EVENT_HPP
+#define FIRE_EVENT_HPP
 
 #include <exception>
 
 #include "fire/h5/DataSet.hpp"
 
 namespace fire {
-namespace h5 {
 
 /// forward declaration for friendship
-class File;
+class Process;
 
 /**
  * Event class for interfacing with processors
@@ -50,11 +49,11 @@ class Event {
     auto set_it{sets_.find(name)};
     if (set_it == sets_.end()) {
       // TODO prevent two add's of same 'name' per event
-      sets_[name] = std::make_unique<DataSet<DataType>>(name);
+      sets_[name] = std::make_unique<h5::DataSet<DataType>>(name);
     }
     try {
       /// maybe throw bad_cast exception
-      dynamic_cast<DataSet<DataType>&>(*sets_[name]).update(data);
+      dynamic_cast<h5::DataSet<DataType>&>(*sets_[name]).update(data);
     } catch (std::bad_cast const&) {
       throw std::runtime_error("DataSet corresponding to " + name +
                                " has different type.");
@@ -84,14 +83,14 @@ class Event {
         // no input file
         throw std::runtime_error("DataSet named "+name+" does not exist.");
       }
-      sets_[name] = std::make_unique<DataSet<DataType>>(name);
+      sets_[name] = std::make_unique<h5::DataSet<DataType>>(name);
       //  this line may throw an error
       sets_[name]->load(*input_file_, i_entry_);
     }
 
     // type casting, 'bad_cast' thrown if unable
     try {
-      return dynamic_cast<DataSet<DataType>&>(*sets_[name]).get();
+      return dynamic_cast<h5::DataSet<DataType>&>(*sets_[name]).get();
     } catch (std::bad_cast const&) {
       throw std::runtime_error("DataSet corresponding to " + name +
                                " has different type.");
@@ -103,7 +102,7 @@ class Event {
    * this allows the File to handle the core iteration procedure
    * while preventing other classes from accessing these methods.
    */
-  friend class File;
+  friend class Process;
 
   /**
    * Go through and save the current in-memory objects into 
@@ -152,53 +151,11 @@ class Event {
   /// name of current processing pass
   std::string pass_;
   /// list of datasets being processed
-  std::unordered_map<std::string, std::unique_ptr<BaseDataSet>> sets_;
+  std::unordered_map<std::string, std::unique_ptr<h5::BaseDataSet>> sets_;
   /// current index in the datasets
   long unsigned int i_entry_;
-};
+};  // Event
 
-class File {
-  H5Easy::File h5_file_;
-  bool write_;
-  long unsigned int i_entry_;
-  long unsigned int entries_;
-  Event& event_;
+}
 
- public:
-  File(const std::string& name, Event& event, bool write = false)
-      : h5_file_{name,
-                 write ? HighFive::File::Truncate : HighFive::File::ReadOnly},
-        write_{write},
-        event_{event},
-        i_entry_{0},
-        entries_{0} {
-    if (not write) {
-      // need to grab number of entries from specific data set
-      event_.setInputFile(h5_file_);
-      entries_ = H5Easy::getSize(h5_file_, "i_entry");
-    }
-  }
-
-  bool next(bool should_save = true) {
-    i_entry_++;
-    if (write_) {
-      if (should_save) {
-        event_.save(h5_file_,i_entry_-1);
-      }
-      entries_++;
-      return true;
-    } else {
-      if (i_entry_ < entries_) {
-        event_.load(h5_file_,i_entry_);
-        event_.next();
-        return true;
-      } else
-        return false;
-    }
-  }
-};  // File
-
-}  // namespace h5
-}  // namespace fire
-
-#endif  // FIRE_H5_FILE_HPP
+#endif  // FIRE_EVENT_HPP

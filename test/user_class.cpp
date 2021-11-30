@@ -2,7 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "fire/h5/File.hpp"
+#include "fire/Process.hpp"
 #include "fire/h5/DataSet.hpp"
 
 // test a plain old data user class
@@ -56,15 +56,14 @@ BOOST_AUTO_TEST_CASE(user_class) {
   nested.emplace_back(98.,32.,-11);
 
   try { // Writing
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event,true);
+    fire::Process p("test",filename,true);
     for (std::size_t i_entry{0}; i_entry < dims.size(); i_entry++) {
-      event.add("dims", dims.at(i_entry));
-      event.add("nested", nested.at(i_entry));
+      p.event().add("dims", dims.at(i_entry));
+      p.event().add("nested", nested.at(i_entry));
 
       // needed for event counting, standing in for event header
-      event.add("i_entry", i_entry);
-      file.next();
+      p.event().add("i_entry", i_entry);
+      p.next();
     }
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
@@ -72,18 +71,17 @@ BOOST_AUTO_TEST_CASE(user_class) {
   }
   
   try { // Reading
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event);
+    fire::Process p("test",filename);
     std::size_t i_entry{0};
     do {
-      auto d = event.get<Size2D>("dims");
+      auto d = p.event().get<Size2D>("dims");
       BOOST_CHECK(d == dims.at(i_entry));
 
-      auto s = event.get<Size3D>("nested");
+      auto s = p.event().get<Size3D>("nested");
       BOOST_CHECK(s == nested.at(i_entry));
 
       i_entry++;
-    } while (file.next());
+    } while (p.next());
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
     BOOST_REQUIRE(false);

@@ -2,7 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "fire/h5/File.hpp"
+#include "fire/Process.hpp"
 #include "fire/h5/DataSet.hpp"
 
 class Hit {
@@ -56,23 +56,22 @@ BOOST_AUTO_TEST_CASE(vector_user_class) {
     };
 
   try { // Writing
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event,true);
+    fire::Process p("test",filename,true);
     for (std::size_t i_entry{0}; i_entry < all_hits.size(); i_entry++) {
-      event.add("hits", all_hits.at(i_entry));
+      p.event().add("hits", all_hits.at(i_entry));
 
       auto c = Cluster(i_entry, all_hits.at(i_entry));
-      event.add("cluster", c);
+      p.event().add("cluster", c);
 
       std::vector<Cluster> clusters;
       clusters.emplace_back(i_entry, all_hits.at(0));
       clusters.emplace_back(i_entry-1, all_hits.at(1));
 
-      event.add("clusters", clusters);
+      p.event().add("clusters", clusters);
 
       // needed for event counting, standing in for event header
-      event.add("i_entry", i_entry);
-      file.next();
+      p.event().add("i_entry", i_entry);
+      p.next();
     }
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
@@ -80,25 +79,24 @@ BOOST_AUTO_TEST_CASE(vector_user_class) {
   }
 
   try { // Reading
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event);
+    fire::Process p("test",filename);
     std::size_t i_entry{0};
     do {
-      auto hits = event.get<std::vector<Hit>>("hits");
+      auto hits = p.event().get<std::vector<Hit>>("hits");
       BOOST_CHECK(hits == all_hits.at(i_entry));
 
       auto correct_c = Cluster(i_entry, all_hits.at(i_entry));
-      auto c = event.get<Cluster>("cluster");
+      auto c = p.event().get<Cluster>("cluster");
       BOOST_CHECK(c == correct_c);
 
       std::vector<Cluster> correct_clusters;
       correct_clusters.emplace_back(i_entry, all_hits.at(0));
       correct_clusters.emplace_back(i_entry-1, all_hits.at(1));
-      auto clusters = event.get<std::vector<Cluster>>("clusters");
+      auto clusters = p.event().get<std::vector<Cluster>>("clusters");
       BOOST_CHECK(clusters == correct_clusters);
 
       i_entry++;
-    } while(file.next());
+    } while(p.next());
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
     BOOST_REQUIRE(false);

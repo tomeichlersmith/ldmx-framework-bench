@@ -2,7 +2,7 @@
 #define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-#include "fire/h5/File.hpp"
+#include "fire/Process.hpp"
 
 BOOST_AUTO_TEST_CASE(vector_atomics) {
   std::string filename{"vector_atomics.h5"};
@@ -12,11 +12,10 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
   std::vector<int>    ints    = { 0, -33, 88, 39, 123 };
 
   try { // Writing
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event,true);
+    fire::Process p("test",filename,true);
     for (std::size_t i_entry{0}; i_entry < doubles.size(); i_entry++) {
-      event.add("doubles", doubles);
-      event.add("ints", ints);
+      p.event().add("doubles", doubles);
+      p.event().add("ints", ints);
 
       /**
        * bools are funky
@@ -25,8 +24,8 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
       */
 
       // needed for event counting, standing in for event header
-      event.add("i_entry", i_entry);
-      file.next();
+      p.event().add("i_entry", i_entry);
+      p.next();
     }
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
@@ -34,14 +33,13 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
   }
 
   try { // Reading
-    fire::h5::Event event("test");
-    fire::h5::File file(filename,event);
+    fire::Process p("test",filename);
     std::size_t i_entry{0};
     do {
-      auto d = event.get<std::vector<double>>("doubles");
+      auto d = p.event().get<std::vector<double>>("doubles");
       BOOST_CHECK(d == doubles);
 
-      auto i = event.get<std::vector<int>>("ints");
+      auto i = p.event().get<std::vector<int>>("ints");
       BOOST_CHECK(i == ints);
 
       /**
@@ -50,7 +48,7 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
       */
 
       i_entry++;
-    } while(file.next());
+    } while(p.next());
   } catch (std::exception const& e) {
     std::cout << e.what() << std::endl;
     BOOST_REQUIRE(false);
