@@ -16,12 +16,12 @@ and the default container image be the hdf5 image.
 ## To-Do
 
 - General
-  - [ ] Serialize `std::vector` and `std::map` (and other STL containers?)
-  - [ ] Split `fire::h5::File` into the actual file and the event bus
+  - [x] Serialize `std::vector` and `std::map` (and other STL containers?)
+  - [x] Split `fire::h5::File` into the actual file and the event bus
   - [ ] Input file able to loop over multiple on-disk files as if one file
 - More Testing
-  - [ ] user class with container member variable
-  - [ ] container of user class
+  - [x] user class with container member variable
+  - [x] container of user class
   - [x] user class with user class member variable
 - Port H5Easy file here and introduce our specializations
   - [ ] 1D buffering mechanism

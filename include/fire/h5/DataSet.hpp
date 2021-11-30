@@ -4,6 +4,8 @@
 #include <highfive/H5Easy.hpp>
 #include <memory>
 #include <type_traits>
+#include <vector>
+#include <map>
 
 namespace fire {
 namespace h5 {
@@ -138,6 +140,8 @@ class AbstractDataSet : public BaseDataSet {
  *   }
  *  private:
  *   double my_double_;
+ *   // this member doesn't appear in 'attach' so it won't end up on disk
+ *   int i_wont_be_on_disk_;
  * };
  * ```
  */
@@ -292,6 +296,76 @@ class DataSet<std::vector<ContentType>>
   unsigned long int i_data_entry_;
 };
 
+/**
+ * Maps
+ *
+ * Very similar implementation as vectors, just having
+ * two columns rather than only one.
+ *
+ * @note We assume the load/save is done sequentially.
+ * Similar rational as Vectors
+ */
+template <typename KeyType, typename ValType>
+class DataSet<std::map<KeyType,ValType>>
+    : public AbstractDataSet<std::map<KeyType,ValType>> {
+ public:
+  /**
+   * We create three child data sets, one for the successive sizes
+   * of the maps and two to hold all the keys and values serially.
+   */
+  DataSet(std::string const& name, std::map<KeyType,ValType>* handle = nullptr)
+      : AbstractDataSet<std::map<KeyType,ValType>>(name, handle),
+        size_{name + "/size"},
+        keys_{name + "/keys"},
+        vals_{name + "/vals"},
+        i_data_entry_{0} {}
+
+  /**
+   * Load a map from the input file
+   *
+   * @note We assume that the loads are done sequentially.
+   *
+   * We read the next size and then read that many items from
+   * the content data set into the vector handle.
+   */
+  void load(H5Easy::File& f, long unsigned int i_entry) {
+    size_.load(f, i_entry);
+    for (std::size_t i_map{0}; i_map < size_.get(); i_map++) {
+      keys_.load(f, i_data_entry_);
+      vals_.load(f, i_data_entry);
+      this->handle_->emplace(keys_.get(), vals_.get());
+      i_data_entry_++;
+    }
+  }
+
+  /**
+   * Save a vector to the output file
+   *
+   * @note We assume that the saves are done sequentially.
+   *
+   * We write the size and the content onto the end of their data sets.
+   */
+  void save(H5Easy::File& f, long unsigned int i_entry) {
+    size_.update(this->handle_->size());
+    size_.save(f, i_entry);
+    for (auto const& [key,val] : *(this->handle_)) {
+      keys_.update(key);
+      keys_.save(f, i_data_entry_);
+      vals_.update(val);
+      vals_.save(f, i_data_entry_);
+      i_data_entry_++;
+    }
+  }
+
+ private:
+  /// the data set of sizes of the vectors
+  DataSet<std::size_t> size_;
+  /// the data set holding the content of all the keys
+  DataSet<KeyType> keys_;
+  /// the data set holding the content of all the vals
+  DataSet<ValType> vals_;
+  /// the entry in the content data set we are currently on
+  unsigned long int i_data_entry_;
 }  // namespace h5
 }  // namespace fire
 
