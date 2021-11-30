@@ -12,10 +12,11 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
   std::vector<int>    ints    = { 0, -33, 88, 39, 123 };
 
   try { // Writing
-    fire::h5::File file(filename,true);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event,true);
     for (std::size_t i_entry{0}; i_entry < doubles.size(); i_entry++) {
-      file.add("doubles", doubles);
-      file.add("ints", ints);
+      event.add("doubles", doubles);
+      event.add("ints", ints);
 
       /**
        * bools are funky
@@ -24,7 +25,7 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
       */
 
       // needed for event counting, standing in for event header
-      file.add("i_entry", i_entry);
+      event.add("i_entry", i_entry);
       file.next();
     }
   } catch (std::exception const& e) {
@@ -33,13 +34,14 @@ BOOST_AUTO_TEST_CASE(vector_atomics) {
   }
 
   try { // Reading
-    fire::h5::File file(filename);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event);
     std::size_t i_entry{0};
     do {
-      auto d = file.get<std::vector<double>>("doubles");
+      auto d = event.get<std::vector<double>>("doubles");
       BOOST_CHECK(d == doubles);
 
-      auto i = file.get<std::vector<int>>("ints");
+      auto i = event.get<std::vector<int>>("ints");
       BOOST_CHECK(i == ints);
 
       /**

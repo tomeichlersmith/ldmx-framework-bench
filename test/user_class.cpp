@@ -56,13 +56,14 @@ BOOST_AUTO_TEST_CASE(user_class) {
   nested.emplace_back(98.,32.,-11);
 
   try { // Writing
-    fire::h5::File file(filename,true);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event,true);
     for (std::size_t i_entry{0}; i_entry < dims.size(); i_entry++) {
-      file.add("dims", dims.at(i_entry));
-      file.add("nested", nested.at(i_entry));
+      event.add("dims", dims.at(i_entry));
+      event.add("nested", nested.at(i_entry));
 
       // needed for event counting, standing in for event header
-      file.add("i_entry", i_entry);
+      event.add("i_entry", i_entry);
       file.next();
     }
   } catch (std::exception const& e) {
@@ -71,13 +72,14 @@ BOOST_AUTO_TEST_CASE(user_class) {
   }
   
   try { // Reading
-    fire::h5::File file(filename);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event);
     std::size_t i_entry{0};
     do {
-      auto d = file.get<Size2D>("dims");
+      auto d = event.get<Size2D>("dims");
       BOOST_CHECK(d == dims.at(i_entry));
 
-      auto s = file.get<Size3D>("nested");
+      auto s = event.get<Size3D>("nested");
       BOOST_CHECK(s == nested.at(i_entry));
 
       i_entry++;

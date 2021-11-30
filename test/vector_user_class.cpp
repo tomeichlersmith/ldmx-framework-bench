@@ -56,21 +56,22 @@ BOOST_AUTO_TEST_CASE(vector_user_class) {
     };
 
   try { // Writing
-    fire::h5::File file(filename,true);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event,true);
     for (std::size_t i_entry{0}; i_entry < all_hits.size(); i_entry++) {
-      file.add("hits", all_hits.at(i_entry));
+      event.add("hits", all_hits.at(i_entry));
 
       auto c = Cluster(i_entry, all_hits.at(i_entry));
-      file.add("cluster", c);
+      event.add("cluster", c);
 
       std::vector<Cluster> clusters;
       clusters.emplace_back(i_entry, all_hits.at(0));
       clusters.emplace_back(i_entry-1, all_hits.at(1));
 
-      file.add("clusters", clusters);
+      event.add("clusters", clusters);
 
       // needed for event counting, standing in for event header
-      file.add("i_entry", i_entry);
+      event.add("i_entry", i_entry);
       file.next();
     }
   } catch (std::exception const& e) {
@@ -79,20 +80,21 @@ BOOST_AUTO_TEST_CASE(vector_user_class) {
   }
 
   try { // Reading
-    fire::h5::File file(filename);
+    fire::h5::Event event("test");
+    fire::h5::File file(filename,event);
     std::size_t i_entry{0};
     do {
-      auto hits = file.get<std::vector<Hit>>("hits");
+      auto hits = event.get<std::vector<Hit>>("hits");
       BOOST_CHECK(hits == all_hits.at(i_entry));
 
       auto correct_c = Cluster(i_entry, all_hits.at(i_entry));
-      auto c = file.get<Cluster>("cluster");
+      auto c = event.get<Cluster>("cluster");
       BOOST_CHECK(c == correct_c);
 
       std::vector<Cluster> correct_clusters;
       correct_clusters.emplace_back(i_entry, all_hits.at(0));
       correct_clusters.emplace_back(i_entry-1, all_hits.at(1));
-      auto clusters = file.get<std::vector<Cluster>>("clusters");
+      auto clusters = event.get<std::vector<Cluster>>("clusters");
       BOOST_CHECK(clusters == correct_clusters);
 
       i_entry++;

@@ -1,10 +1,9 @@
 #ifndef FIRE_H5_DATASET_HPP
 #define FIRE_H5_DATASET_HPP
 
+#include <highfive/H5Easy.hpp>
 #include <memory>
 #include <type_traits>
-
-#include <highfive/H5Easy.hpp>
 
 namespace fire {
 namespace h5 {
@@ -12,7 +11,7 @@ namespace h5 {
 /**
  * @class BaseDataSet
  *
- * Empty dataset base allowing recursion 
+ * Empty dataset base allowing recursion
  *
  * This does not have the type information of the data
  * stored in any of the derived datasets, it simply instructs
@@ -43,9 +42,9 @@ class BaseDataSet {
  * @class AbstractDataSet
  *
  * Type-specific base class to hold common dataset methods.
- * 
+ *
  * Most (all I can think of?) have a shared initialization, destruction,
- * getting and setting procedure. We can house these procedures in an 
+ * getting and setting procedure. We can house these procedures in an
  * intermediary class in the inheritence tree.
  *
  * @tparam[in] DataType type of data being held in this set
@@ -62,14 +61,14 @@ class AbstractDataSet : public BaseDataSet {
    *
    * If the handle is a nullptr, then we will own our own dynamically created
    * copy of the data. If the handle is not a nullptr, then we assume a parent
-   * data set is holding the full object and we are simply holding a member variable,
-   * so we just copy the address into our handle.
+   * data set is holding the full object and we are simply holding a member
+   * variable, so we just copy the address into our handle.
    *
    * @param[in] name name of dataset
    * @param[in] handle address of object already created (optional)
    */
   AbstractDataSet(std::string const& name, DataType* handle = nullptr)
-    : name_{name}, owner_{handle == nullptr} {
+      : name_{name}, owner_{handle == nullptr} {
     if (owner_) {
       handle_ = new DataType;
     } else {
@@ -109,9 +108,7 @@ class AbstractDataSet : public BaseDataSet {
    *
    * @param[in] val new value the in-memory object should be
    */
-  virtual void update(DataType const& val) {
-    *handle_ = val;
-  }
+  virtual void update(DataType const& val) { *handle_ = val; }
 
  protected:
   /// name of data set
@@ -134,6 +131,8 @@ class AbstractDataSet : public BaseDataSet {
  *  public:
  *   MyData() = default; // required by serialization technique
  *   // other public members
+ *  private:
+ *   friend class fire::h5::DataSet<MyData>;
  *   void attach(fire::h5::DataSet<MyData>& set) {
  *     set.attach("my_double",my_double_);
  *   }
@@ -154,7 +153,7 @@ class DataSet : public AbstractDataSet<DataType> {
    * its member variables with our own 'attach' method.
    */
   DataSet(std::string const& name, DataType* handle = nullptr)
-      : AbstractDataSet<DataType>(name,handle) {
+      : AbstractDataSet<DataType>(name, handle) {
     this->handle_->attach(*this);
   }
 
@@ -163,7 +162,7 @@ class DataSet : public AbstractDataSet<DataType> {
    * all of the members of the data type.
    */
   void load(H5Easy::File& f, long unsigned int i) {
-    for (auto& m : members_) m->load(f,i);
+    for (auto& m : members_) m->load(f, i);
   }
 
   /*
@@ -171,7 +170,7 @@ class DataSet : public AbstractDataSet<DataType> {
    * all of the members of the data type.
    */
   void save(H5Easy::File& f, long unsigned int i) {
-    for (auto& m : members_) m->save(f,i);
+    for (auto& m : members_) m->save(f, i);
   }
 
   /**
@@ -187,8 +186,7 @@ class DataSet : public AbstractDataSet<DataType> {
   template <typename MemberType>
   void attach(std::string const& name, MemberType& m) {
     members_.push_back(
-        std::make_unique<DataSet<MemberType>>(this->name_ + "/" + name, &m)
-        );
+        std::make_unique<DataSet<MemberType>>(this->name_ + "/" + name, &m));
   }
 
  private:
@@ -210,10 +208,11 @@ class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
     : public AbstractDataSet<AtomicType> {
  public:
   /**
-   * We don't do any more initialization except which is handled by the AbstractDataSet
+   * We don't do any more initialization except which is handled by the
+   * AbstractDataSet
    */
   DataSet(std::string const& name, AtomicType* handle = nullptr)
-      : AbstractDataSet<AtomicType>(name,handle) {}
+      : AbstractDataSet<AtomicType>(name, handle) {}
   /**
    * Call the H5Easy::load method with our atomic type and our name
    */
@@ -223,25 +222,33 @@ class DataSet<AtomicType, std::enable_if_t<std::is_arithmetic_v<AtomicType>>>
   /**
    * Call the H5Easy::save method with our atomic type and our name
    */
-  void save(H5Easy::File& f, long unsigned int i) { H5Easy::dump(f, this->name_, *(this->handle_), {i}); }
+  void save(H5Easy::File& f, long unsigned int i) {
+    H5Easy::dump(f, this->name_, *(this->handle_), {i});
+  }
 };  // DataSet<AtomicType>
 
 /**
  * Vectors
  *
  * @note We assume that the load/save is done sequentially.
- * This assumption is made because (1) it is common and (2)
- * it allows us to not have to store as much metadata about the vectors.
+ * This assumption is made because
+ *  (1) it is common and
+ *  (2) it allows us to not have to store
+ *      as much metadata about the vectors.
  */
 template <typename ContentType>
-class DataSet<std::vector<ContentType>> : public AbstractDataSet<std::vector<ContentType>> {
+class DataSet<std::vector<ContentType>>
+    : public AbstractDataSet<std::vector<ContentType>> {
  public:
-   /**
-    * We create two child data sets, one to hold the successive sizes of the vectors
-    * and one to hold all of the data in all of the vectors serially.
-    */
+  /**
+   * We create two child data sets, one to hold the successive sizes of the
+   * vectors and one to hold all of the data in all of the vectors serially.
+   */
   DataSet(std::string const& name, std::vector<ContentType>* handle = nullptr)
-     : AbstractDataSet<std::vector<ContentType>>(name,handle), size_{name+"/size"}, data_{name+"/data"}, i_data_entry_{0} {}
+      : AbstractDataSet<std::vector<ContentType>>(name, handle),
+        size_{name + "/size"},
+        data_{name + "/data"},
+        i_data_entry_{0} {}
 
   /**
    * Load a vector from the input file
@@ -252,10 +259,10 @@ class DataSet<std::vector<ContentType>> : public AbstractDataSet<std::vector<Con
    * the content data set into the vector handle.
    */
   void load(H5Easy::File& f, long unsigned int i_entry) {
-    size_.load(f,i_entry);
+    size_.load(f, i_entry);
     this->handle_->resize(size_.get());
     for (std::size_t i_vec{0}; i_vec < size_.get(); i_vec++) {
-      data_.load(f,i_data_entry_++);
+      data_.load(f, i_data_entry_++);
       (*(this->handle_))[i_vec] = data_.get();
     }
   }
@@ -269,10 +276,10 @@ class DataSet<std::vector<ContentType>> : public AbstractDataSet<std::vector<Con
    */
   void save(H5Easy::File& f, long unsigned int i_entry) {
     size_.update(this->handle_->size());
-    size_.save(f,i_entry);
+    size_.save(f, i_entry);
     for (std::size_t i_vec{0}; i_vec < this->handle_->size(); i_vec++) {
       data_.update(this->handle_->at(i_vec));
-      data_.save(f,i_data_entry_++);
+      data_.save(f, i_data_entry_++);
     }
   }
 
