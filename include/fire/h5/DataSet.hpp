@@ -266,8 +266,9 @@ class DataSet<std::vector<ContentType>>
     size_.load(f, i_entry);
     this->handle_->resize(size_.get());
     for (std::size_t i_vec{0}; i_vec < size_.get(); i_vec++) {
-      data_.load(f, i_data_entry_++);
+      data_.load(f, i_data_entry_);
       (*(this->handle_))[i_vec] = data_.get();
+      i_data_entry_++;
     }
   }
 
@@ -283,7 +284,8 @@ class DataSet<std::vector<ContentType>>
     size_.save(f, i_entry);
     for (std::size_t i_vec{0}; i_vec < this->handle_->size(); i_vec++) {
       data_.update(this->handle_->at(i_vec));
-      data_.save(f, i_data_entry_++);
+      data_.save(f, i_data_entry_);
+      i_data_entry_++;
     }
   }
 
@@ -294,7 +296,7 @@ class DataSet<std::vector<ContentType>>
   DataSet<ContentType> data_;
   /// the entry in the content data set we are currently on
   unsigned long int i_data_entry_;
-};
+};  // DataSet<std::vector>
 
 /**
  * Maps
@@ -332,7 +334,7 @@ class DataSet<std::map<KeyType,ValType>>
     size_.load(f, i_entry);
     for (std::size_t i_map{0}; i_map < size_.get(); i_map++) {
       keys_.load(f, i_data_entry_);
-      vals_.load(f, i_data_entry);
+      vals_.load(f, i_data_entry_);
       this->handle_->emplace(keys_.get(), vals_.get());
       i_data_entry_++;
     }
@@ -366,6 +368,8 @@ class DataSet<std::map<KeyType,ValType>>
   DataSet<ValType> vals_;
   /// the entry in the content data set we are currently on
   unsigned long int i_data_entry_;
+};  // DataSet<std::map>
+
 }  // namespace h5
 }  // namespace fire
 

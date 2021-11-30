@@ -2,10 +2,7 @@ find_package(Boost REQUIRED COMPONENTS unit_test_framework)
 
 add_executable(test_executable
   main_test.cpp
-  atomics.cpp
-  vector_atomics.cpp
-  user_class.cpp
-  vector_user_class.cpp
+  dataset.cpp
   )
   
 target_link_libraries(test_executable 
