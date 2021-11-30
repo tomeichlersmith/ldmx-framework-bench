@@ -23,6 +23,8 @@ and the default container image be the hdf5 image.
   - [x] user class with container member variable
   - [x] container of user class
   - [x] user class with user class member variable
+  - [x] map of atomic types
+  - [x] map with user class as value type
 - Port H5Easy file here and introduce our specializations
   - [ ] 1D buffering mechanism
   - [ ] high level of compression
