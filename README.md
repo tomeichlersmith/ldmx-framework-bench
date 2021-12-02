@@ -41,6 +41,7 @@ and the default container image be the hdf5 image.
   - [x] Serialize `std::vector` and `std::map` (and other STL containers?)
   - [x] Split `fire::h5::File` into the actual file and the event bus
   - [ ] Serialize `std::string`
+  - [ ] Input file able to loop over multiple on-disk files as if one file
   - [ ] Benchmark a `fire` based on ROOT and a `fire` based on HDF5
 - More Testing
   - [x] user class with container member variable
@@ -49,11 +50,10 @@ and the default container image be the hdf5 image.
   - [x] map of atomic types
   - [x] map with user class as value type
   - [ ] `std::string`, vectors of and maps including
-- Port H5Easy file here and introduce our specializations
+- Specialize/optimize `HighFive::File` for our use-case
   - [ ] 1D buffering mechanism
   - [ ] high level of compression
   - [ ] chunking
-  - [ ] Input file able to loop over multiple on-disk files as if one file
 - Move into Framework
   - [ ] Rename Framework -> fire
   - [ ] Pass names as an added layer of group
