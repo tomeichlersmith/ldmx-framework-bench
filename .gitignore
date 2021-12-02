@@ -9,6 +9,9 @@ HighFive/**
 # ignore build and install dirs
 build**
 .container-install**
+ldmx-sw**
 
 # ignore data files
 *.h5
+*.root
+*.pyc

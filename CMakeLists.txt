@@ -3,7 +3,12 @@ cmake_minimum_required(VERSION 3.12)
 
 project(ldmx-rootless VERSION 0.1)
 
+# Load the BuildMacros module. If loaded correctly, the variable 
+# 'build_macros_found' will be set to the path of the module.  Otherwise, it
+# is set to NOTFOUND.
 list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
+include(BuildMacros RESULT_VARIABLE build_macros_found)
+
 
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
@@ -32,12 +37,20 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-find_package(HighFive REQUIRED)
+# Set the python installation path
+set(PYTHON_PACKAGE_NAME LDMX)
 
-add_library(fire_h5 INTERFACE)
-target_include_directories(fire_h5 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(fire_h5 INTERFACE HighFive)
+# Start by building all of the classes needed for building the event bus and 
+# ROOT dictionary. This is on by forcing the global "BUILD_EVENT_ONLY" option
+# here.
+set(BUILD_EVENT_ONLY ON CACHE BOOL "Build the event dictionary." FORCE)
 
-add_library(fire::h5 ALIAS fire_h5)
+add_subdirectory(Bench ${CMAKE_BINARY_DIR}/BenchEvent)
 
-add_subdirectory(test)
+# Once the event libraries have been built, turn off the global option. 
+set(BUILD_EVENT_ONLY OFF CACHE BOOL "Build the event dictionary." FORCE)
+
+# The framework has all the backend code needed to run all processors.
+add_subdirectory(Framework)
+
+add_subdirectory(Bench)
