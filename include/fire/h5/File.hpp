@@ -12,19 +12,32 @@ namespace h5 {
  */
 class File {
  public:
+  /**
+   * Open the file in write or read mode
+   *  our write == HDF5 TRUNC (overwrite) mode
+   *  our read  == HDF5 Read Only mode
+   */
   File(std::string const& name, bool write) : writing_{write} {
+    /**
+     * create or open the file
+     * arguments:
+     *  name, access mode, creation properties, access properties
+     */
     if (writing_) {
       file_id_ =
-          H5Fcreate(name.c_str(), H5F_ACC_TRUNC, H5P_DEFAULT, H5P_DEFAULT);
+          H5Fcreate(name.c_str(), H5F_ACC_TRUNC /*overwrite if exist*/, H5P_DEFAULT, H5P_DEFAULT);
     } else {
       file_id_ =
-          H5Fopen(name.c_str(), H5F_ACC_READONLY, H5P_DEFAULT, H5P_DEFAULT);
+          H5Fopen(name.c_str(), H5F_ACC_RDONLY /*read only*/, H5P_DEFAULT, H5P_DEFAULT);
     }
   }
 
+  /**
+   * Close up our file, making sure to flush contents to disk if writing
+   */
   ~File() {
     if (writing_) {
-      if ((status_ = H5Fflust(file_id_)) < 0) {
+      if ((status_ = H5Fflush(file_id_)) < 0) {
         throw std::runtime_error("H5 file closure failed with error code " +
                                  std::to_string(status_));
       }
@@ -34,11 +47,49 @@ class File {
                                std::to_string(status_));
     }
   }
+ 
+ private:
+  /** struct to deduce hdf5 type from C++ type */
+  template <typename T, std::enable_if_t<std::is_arithmetic_v<T>,bool> = true>
+  struct deduce_hdf5 {};
 
+  template <>
+  struct deduce_hdf5<int> {
+    using type = H5T_NATIVE_INT;
+  };
+
+  template <>
+  struct deduce_hdf5<float> {
+    using type = H5T_NATIVE_FLOAT;
+  };
+
+  template <>
+  struct deduce_hdf5<char> {
+    using type = H5T_NATIVE_CHAR;
+  };
+
+  template <>
+  struct deduce_hdf5<double> {
+    using type = H5T_NATIVE_DOUBLE;
+  };
+
+  template <>
+  struct deduce_hdf5<long double> {
+    using type = H5T_NATIVE_LDOUBLE;
+  };
+
+  template <typename T>
+  using hdf5_t = deduce_hdf5<T>::type;
+
+ public:
+
+  /**
+   * Try to load a single value of an atomic type into the input handle
+   */
   template <
       typename AtomicType,
-      std::enable_if_t<std::is_arithmetic_v<AtomicType>, bool >= true> void
-          load(const std::string& path, long unsigned int i, AtomicType* val) {
+      std::enable_if_t<std::is_arithmetic_v<AtomicType>, bool >= true>
+  void load(const std::string& path, long unsigned int i, AtomicType* val) {
     if (writing_) {
       // should never call 'load' on an output file
       throw std::runtime_error("Attempted to load data from the output file.");
@@ -57,8 +108,8 @@ class File {
 
   template <
       typename AtomicType,
-      std::enable_if_t<std::is_arithmetic_v<AtomicType>, bool >= true> void
-          save(const std::string& path, long unsigned int i, AtomicType* val) {
+      std::enable_if_t<std::is_arithmetic_v<AtomicType>, bool >= true> 
+  void save(const std::string& path, long unsigned int i, AtomicType* val) {
     if (not writing_) {
       throw std::runtime_error("Attempted to save data to the input file.");
     }
