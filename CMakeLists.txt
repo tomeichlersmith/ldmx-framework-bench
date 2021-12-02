@@ -8,7 +8,7 @@ list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/.container-install CACHE PATH "" FORCE)
+  set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
   message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
 endif()
 

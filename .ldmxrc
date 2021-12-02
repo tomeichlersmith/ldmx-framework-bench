@@ -16,5 +16,5 @@
 base .
 
 # Use dev/hdf5 container by default
-use dev hdf5
+use dev latest
 
