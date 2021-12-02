@@ -8,7 +8,7 @@
 namespace fire {
 
 class Process {
-  H5Easy::File h5_file_;
+  h5::File h5_file_;
   bool write_;
   long unsigned int i_entry_;
   long unsigned int entries_;
@@ -16,8 +16,7 @@ class Process {
 
  public:
   Process(const std::string& pass, const std::string& file_name, bool write = false)
-      : h5_file_{file_name,
-                 write ? HighFive::File::Truncate : HighFive::File::ReadOnly},
+      : h5_file_{file_name, write},
         write_{write},
         event_{pass},
         i_entry_{0},

@@ -111,7 +111,7 @@ class Event {
    * @param[in] f output HDF5 file to write to
    * @param[in] i index of dataset to write to
    */
-  void save(H5Easy::File& f, unsigned long int i) {
+  void save(h5::File& f, unsigned long int i) {
     for (auto& [_, set] : sets_) set->save(f, i);
   }
 
@@ -122,7 +122,7 @@ class Event {
    * @param[in] f input HDF5 file to read from
    * @param[in] i index of dataset to read from
    */
-  void load(H5Easy::File& f, unsigned long int i) {
+  void load(h5::File& f, unsigned long int i) {
     for (auto& [_, set] : sets_) set->load(f, i);
   }
 
@@ -134,7 +134,7 @@ class Event {
    *
    * @param[in] f reference to HDF5 input file
    */
-  void setInputFile(H5Easy::File& f) {
+  void setInputFile(h5::File& f) {
     input_file_ = &f;
   }
 
@@ -147,7 +147,7 @@ class Event {
 
  private:
   /// pointer to input file (maybe nullptr)
-  H5Easy::File* input_file_;
+  h5::File* input_file_;
   /// name of current processing pass
   std::string pass_;
   /// list of datasets being processed

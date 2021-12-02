@@ -67,7 +67,7 @@ class Cluster {
 };
 
 template <typename ArbitraryDataSet, typename DataType>
-bool save(ArbitraryDataSet& set, DataType const& d, H5Easy::File& f, long unsigned int i) {
+bool save(ArbitraryDataSet& set, DataType const& d, fire::h5::File& f, long unsigned int i) {
   try {
     set.update(d);
     set.save(f,i);
@@ -79,7 +79,7 @@ bool save(ArbitraryDataSet& set, DataType const& d, H5Easy::File& f, long unsign
 }
 
 template <typename ArbitraryDataSet, typename DataType>
-bool load(ArbitraryDataSet& set, DataType const& d, H5Easy::File& f, long unsigned int i) {
+bool load(ArbitraryDataSet& set, DataType const& d, fire::h5::File& f, long unsigned int i) {
   try {
     set.load(f,i);
     return (d == set.get());
@@ -104,7 +104,7 @@ BOOST_AUTO_TEST_CASE(dataset) {
 
 
   { // Writing
-    H5Easy::File f{filename, HighFive::File::Truncate}; 
+    fire::h5::File f{filename, true}; 
 
     fire::h5::DataSet<double> double_ds("double");
     fire::h5::DataSet<int>    int_ds("int");
@@ -160,7 +160,7 @@ BOOST_AUTO_TEST_CASE(dataset) {
   }
 
   { // Reading
-    H5Easy::File f{filename, HighFive::File::ReadOnly}; 
+    fire::h5::File f{filename};
 
     fire::h5::DataSet<double> double_ds("double");
     fire::h5::DataSet<int>    int_ds("int");
