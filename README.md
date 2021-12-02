@@ -25,6 +25,8 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
   - Absolutely possible to write a ROOT -> HDF5 converting tool.
     Is it useful? Our simulated data becomes stale (almost useless) pretty quickly and we end up deleting it.
     The container allows for re-generating older samples if need be.
+- DAQ?
+  - [HDF5 and h5py have a MPI interface](https://docs.h5py.org/en/stable/mpi.html) which could be used in conjunction with Rogue to write out data in parallel.
 
 ## Environment Notes
 
