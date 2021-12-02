@@ -38,6 +38,7 @@ and the default container image be the hdf5 image.
 - General
   - [x] Serialize `std::vector` and `std::map` (and other STL containers?)
   - [x] Split `fire::h5::File` into the actual file and the event bus
+  - [ ] Serialize `std::string`
   - [ ] Benchmark a `fire` based on ROOT and a `fire` based on HDF5
 - More Testing
   - [x] user class with container member variable
@@ -45,6 +46,7 @@ and the default container image be the hdf5 image.
   - [x] user class with user class member variable
   - [x] map of atomic types
   - [x] map with user class as value type
+  - [ ] `std::string`, vectors of and maps including
 - Port H5Easy file here and introduce our specializations
   - [ ] 1D buffering mechanism
   - [ ] high level of compression
