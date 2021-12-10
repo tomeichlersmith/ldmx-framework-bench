@@ -8,9 +8,9 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
 
 ## Anticipated Q&A
 - Why?
-  - ROOT fails to conform to modern C++ practices causing it to not be used outside of HEP.
+  - ROOT fails to conform to modern software practices causing it to not be used outside of HEP.
     This means it is difficult to learn for new users, is poorly maintained, and has poor documentation.
-    Since ROOT's inception and standardization at CERN, modern industry big data tools have
+  - Since ROOT's inception and standardization at CERN, modern industry big data tools have
     come into existence that are as performative, easier to use, and better documented than ROOT.
 - ROOT is highly performative for our usecase, will we see reduced speed?
   - **write benchmark test**
@@ -19,8 +19,10 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     so we can safely rely on them to be maintained in the future. Moreover, since they have a wider user base,
     their development has surpassed ROOT in terms of stability and ease-of-use.
 - ROOT allows for quick data analysis, why abandon it?
-  - Disagree that ROOT allows for quick data analysis, especially for new users.
-    ROOT is very opaque and difficult to understand, anything is quick to use if you are already familiar with it.
+  - I disagree that ROOT allows for quick data analysis, especially for new users.
+    ROOT is very opaque and difficult to understand, and I think you are underestimating how quick analysis can be with other tools.
+  - One standard analysis technique is using `matplotlib` inside a Jupyter notebook.
+    That is incredibly quick, flexible, and powerful.
 - Translation layer for intermediate stage?
   - Absolutely possible to write a ROOT -> HDF5 converting tool.
     Is it useful? Our simulated data becomes stale (almost useless) pretty quickly and we end up deleting it.
@@ -59,4 +61,6 @@ and the default container image be the hdf5 image.
   - [ ] Pass names as an added layer of group
   - [ ] Read/Write RunHeaders
 
-
+## Future Plans
+- `fire` versioned and installed in developers container
+- Jupyter notebook installed in dev container and port opened through env script
