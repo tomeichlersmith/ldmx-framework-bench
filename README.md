@@ -28,7 +28,10 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     Is it useful? Our simulated data becomes stale (almost useless) pretty quickly and we end up deleting it.
     The container allows for re-generating older samples if need be.
 - DAQ?
-  - [HDF5 and h5py have a MPI interface](https://docs.h5py.org/en/stable/mpi.html) which could be used in conjunction with Rogue to write out data in parallel.
+  - [HDF5 and h5py have a MPI interface](https://docs.h5py.org/en/stable/mpi.html) which could be used in conjunction with Rogue to write out data from multiple DAQ servers at once.
+- Boost.Histogram
+  - Already accessible, easy-to-use histogram filler following modern C++ coding practices
+  - [More flexible and faster than ROOT or gsl](https://www.boost.org/doc/libs/1_70_0/libs/histogram/doc/html/histogram/benchmarks.html)
 
 ## Environment Notes
 
