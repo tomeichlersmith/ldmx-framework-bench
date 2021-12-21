@@ -3,7 +3,11 @@ cmake_minimum_required(VERSION 3.12)
 
 project(ldmx-rootless VERSION 0.1)
 
+# Load the BuildMacros module. If loaded correctly, the variable 
+# 'build_macros_found' will be set to the path of the module.  Otherwise, it
+# is set to NOTFOUND.
 list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
+include(BuildMacros RESULT_VARIABLE build_macros_found)
 
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
@@ -32,12 +36,6 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-find_package(HighFive REQUIRED)
+add_subdirectory(fire)
 
-add_library(fire_h5 INTERFACE)
-target_include_directories(fire_h5 INTERFACE ${CMAKE_CURRENT_SOURCE_DIR}/include)
-target_link_libraries(fire_h5 INTERFACE HighFive)
-
-add_library(fire::h5 ALIAS fire_h5)
-
-add_subdirectory(test)
+add_subdirectory(Bench)
