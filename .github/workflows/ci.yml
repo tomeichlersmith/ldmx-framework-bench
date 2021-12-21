@@ -28,4 +28,4 @@ jobs:
         source rootless-env.sh
         ldmx cmake -B build -S .
         cd build
-        ldmx make test
+        ldmx make
