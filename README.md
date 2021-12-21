@@ -65,6 +65,13 @@ and the default container image be the hdf5 image.
   - [x] Rename Framework -> fire
   - [x] Pass names as an added layer of group
   - [x] Read/Write RunHeaders
+- fire features
+  - [ ] histogram pool (maybe, not sure if should be encouraged)
+  - [ ] cmake module for finding and loading helpful macros
+  - [ ] conditions system operational and tested
+  - [ ] random number seed service
+  - [ ] logging
+  - [ ] processor exceptions
 
 ## Future Plans
 - `fire` versioned and installed in developers container
