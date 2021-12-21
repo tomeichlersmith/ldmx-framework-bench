@@ -3,12 +3,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(ldmx-rootless VERSION 0.1)
 
-# Load the BuildMacros module. If loaded correctly, the variable 
-# 'build_macros_found' will be set to the path of the module.  Otherwise, it
-# is set to NOTFOUND.
-list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
-include(BuildMacros RESULT_VARIABLE build_macros_found)
-
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
