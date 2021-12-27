@@ -6,8 +6,8 @@ namespace bench {
 
 class Produce : public fire::Producer {
  public:
-  Produce(const std::string& name, fire::Process& p)
-    : fire::Producer(name,p) {}
+  Produce(const fire::config::Parameters& ps)
+    : fire::Producer(ps) {}
   ~Produce() = default;
   void produce(fire::Event& event) final override {
     Hit h;

@@ -30,6 +30,4 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-add_subdirectory(fire)
-
 add_subdirectory(Bench)
