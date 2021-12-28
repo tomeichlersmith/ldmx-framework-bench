@@ -3,10 +3,11 @@ from LDMX.Framework import ldmxcfg
 
 p = ldmxcfg.Process('bench')
 
-p.maxEvents = 10
+import sys
+p.maxEvents = int(sys.argv[1])
 
-p.outputFiles = ['output.root']
+import os
+os.makedirs('output')
+p.outputFiles = ['output/output.root']
 
 p.sequence = [ ldmxcfg.Producer('make','bench::Produce','Bench') ]
-
-p.pause()
