@@ -17,7 +17,7 @@ class Produce : public fire::Producer {
   Produce(const fire::config::Parameters& ps)
     : fire::Producer(ps),
     rng{}, // this is where a seed for the RNG would be put
-    rand_size{1, std::size_t(ps.get<int>("max_size",10))},
+    rand_size{1, std::size_t(ps.get<int>("max_size",100))},
     rand_value{0.,1.}
   {}
   ~Produce() = default;
