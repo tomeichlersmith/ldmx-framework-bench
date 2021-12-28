@@ -1,0 +1,36 @@
+
+name: Benchmark
+
+on:
+  workflow_dispatch
+
+# workflow consists of one building and testing job
+jobs:
+  bench:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        num_events : [1,10,100]
+        ref: ['main','root']
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - 
+      name: Get Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        ref: ${{matrix.ref}}
+    -
+      name: Build and Install
+      run: |
+        source rootless-env.sh
+        ldmx cmake -B build -S .
+        ldmx cmake --build build --target install
+    -
+      name: Run Benchmark
+      run: |
+        ldmx config
+        ldmx time fire config.py ${{matrix.num_events}}
+        stat output/*
