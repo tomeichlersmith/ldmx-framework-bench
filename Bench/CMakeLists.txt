@@ -15,5 +15,4 @@ add_library(Bench SHARED src/Bench/Produce.cxx)
 target_include_directories(Bench PUBLIC include)
 target_link_libraries(Bench PUBLIC Bench_Event fire::framework)
 
-install(TARGETS Bench_Event Bench
-        DESTINATION lib)
+install(TARGETS Bench_Event Bench DESTINATION lib)

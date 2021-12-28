@@ -1,7 +1,7 @@
 # This is a sample project to test integration via add_subdirectory and CMakeConfig
 cmake_minimum_required(VERSION 3.12)
 
-project(ldmx-rootless VERSION 0.1)
+project(ldmx-rootless) 
 
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
@@ -29,5 +29,7 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
+
+find_package(fire REQUIRED)
 
 add_subdirectory(Bench)
