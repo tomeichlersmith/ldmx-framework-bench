@@ -13,7 +13,7 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
   - Since ROOT's inception and standardization at CERN, modern industry big data tools have
     come into existence that are as performative, easier to use, and better documented than ROOT.
 - ROOT is highly performative for our usecase, will we see reduced speed?
-  - **write benchmark test**
+  - I have been developing a [benchmark test](Bench) comparing ROOT and HDF5 frameworks.
 - ROOT has long term-support, why not rely on that?
   - HDF5, matplotlib, pandas, and other industry tools are well supported by the wider (non-HEP) community,
     so we can safely rely on them to be maintained in the future. Moreover, since they have a wider user base,
@@ -59,7 +59,7 @@ and the default container image be the hdf5 image.
   - [x] `std::string`, vectors of and maps including
 - Specialize/optimize `HighFive::File` for our use-case
   - [ ] 1D buffering mechanism
-  - [ ] high level of compression
+  - [x] high level of compression
   - [x] chunking
 - Move into Framework
   - [x] Rename Framework -> fire
@@ -67,10 +67,10 @@ and the default container image be the hdf5 image.
   - [x] Read/Write RunHeaders
 - fire features
   - [ ] histogram pool (maybe, not sure if should be encouraged)
-  - [ ] cmake module for finding and loading helpful macros
-  - [ ] conditions system operational and tested
-  - [ ] random number seed service
-  - [ ] logging
+  - [x] cmake module for finding and loading helpful macros
+  - [x] conditions system operational and tested
+  - [x] random number seed service
+  - [x] logging
   - [ ] processor exceptions
 
 ## Future Plans
