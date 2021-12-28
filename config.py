@@ -1,12 +1,11 @@
 
-import ldmx.cfg
+import fire.cfg
 
 p = fire.cfg.Process('bench')
 
-p.maxEvents = 10
+import sys
+p.event_limit = int(sys.argv[1])
 
-p.outputFiles = ['output.root']
+p.output_file = fire.cfg.OutputFile(f'output_bench_{p.event_limit}.h5')
 
 p.sequence = [ fire.cfg.Producer('make','bench::Produce','Bench') ]
-
-p.pause()
