@@ -30,6 +30,18 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-find_package(fire REQUIRED)
+find_package(fire)
+if (NOT fire_FOUND)
+  # pre-compiled version not installed
+  #   compile it here
+  #   need to promote HighFive package find
+  #   to this package scope
+  find_package(HighFive REQUIRED)
+  add_subdirectory(fire)
+  # add aliases so the Bench/CMakeLists
+  #   doesn't have to change
+  add_library(fire::h5 ALIAS h5)
+  add_library(fire::framework ALIAS framework)
+endif()
 
 add_subdirectory(Bench)
