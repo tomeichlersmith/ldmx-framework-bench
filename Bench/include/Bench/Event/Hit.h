@@ -5,7 +5,7 @@
 #include <iostream>
 
 // H5
-#include "fire/h5/DataSet.hpp"
+#include "fire/h5/DataSet.h"
 
 namespace bench {
 
