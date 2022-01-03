@@ -29,8 +29,10 @@ jobs:
         ldmx config
         ldmx cmake -B build -S .
         ldmx cmake --build build --target install
+        echo "::endgroup::"
         echo "::group::Run Benchmark"
         ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
+        echo "::endgroup::"
     - 
       name: Get Repository
       uses: actions/checkout@v2
@@ -38,15 +40,17 @@ jobs:
         submodules: 'recursive'
         ref: 'root'
     -
-      name: Bench HDF5
+      name: Bench ROOT
       run: |
         echo "::group::Build and Install"
         source rootless-env.sh
         ldmx config
         ldmx cmake -B build -S .
         ldmx cmake --build build --target install
+        echo "::endgroup::"
         echo "::group::Run Benchmark"
         ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
+        echo "::endgroup::"
     -
       name: Save Benchmark Data
       uses: actions/upload-artifact@v2
