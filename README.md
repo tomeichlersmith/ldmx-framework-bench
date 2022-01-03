@@ -14,6 +14,7 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     come into existence that are as performative, easier to use, and better documented than ROOT.
 - ROOT is highly performative for our usecase, will we see reduced speed?
   - I have been developing a [benchmark test](Bench) comparing ROOT and HDF5 frameworks.
+  - This test actually shows that the HDF5-based framework is slightly faster than the ROOT framework.
 - ROOT has long term-support, why not rely on that?
   - HDF5, matplotlib, pandas, and other industry tools are well supported by the wider (non-HEP) community,
     so we can safely rely on them to be maintained in the future. Moreover, since they have a wider user base,
@@ -49,7 +50,7 @@ and the default container image be the hdf5 image.
   - [x] Split `fire::h5::File` into the actual file and the event bus
   - [x] Serialize `std::string`
   - [x] Input file able to loop over multiple on-disk files as if one file
-  - [ ] Benchmark a `fire` based on ROOT and a `fire` based on HDF5
+  - [x] Benchmark a `fire` based on ROOT and a `fire` based on HDF5
 - More Testing
   - [x] user class with container member variable
   - [x] container of user class
@@ -58,7 +59,7 @@ and the default container image be the hdf5 image.
   - [x] map with user class as value type
   - [x] `std::string`, vectors of and maps including
 - Specialize/optimize `HighFive::File` for our use-case
-  - [ ] 1D buffering mechanism
+  - [x] 1D buffering mechanism
   - [x] high level of compression
   - [x] chunking
 - Move into Framework
