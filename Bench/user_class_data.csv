@@ -1,0 +1,16 @@
+runner,serializer,events,time,size
+docker,hdf5,1,0.040,72624
+docker,root,1,0.253,17625
+docker,hdf5,10,0.040,94669
+docker,root,10,0.293,36167
+docker,hdf5,100,0.060,238202
+docker,root,100,0.307,187664
+docker,hdf5,1000,0.317,1825396
+docker,root,1000,1.255,1807052
+docker,hdf5,10000,3.061,17796187
+docker,root,10000,10.830,18127495
+docker,hdf5,100000,25.560,175819390
+docker,root,100000,
+docker,hdf5,1000000,
+docker,root,1000000,
+

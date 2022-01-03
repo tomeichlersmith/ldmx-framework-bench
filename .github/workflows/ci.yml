@@ -28,6 +28,13 @@ jobs:
       name: Test the Build
       run: |
         source rootless-env.sh
-        ldmx cmake -B build -S .
-        cd build
-        ldmx make
+        echo "::group::Using HDF5"
+        ldmx use dev hdf5
+        ldmx cmake -B build/hdf5 -S .
+        ldmx cmake --build build/hdf5/
+        echo "::endgroup::"
+        echo "::group::Using ROOT"
+        ldmx use dev latest
+        ldmx cmake -B build/root -S . -DUSE_ROOT=ON
+        ldmx cmake --build build/root/
+        echo "::endgroup::"
