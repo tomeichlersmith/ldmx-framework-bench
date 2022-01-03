@@ -58,6 +58,7 @@ and the default container image be the hdf5 image.
   - [x] map of atomic types
   - [x] map with user class as value type
   - [x] `std::string`, vectors of and maps including
+  - [ ] Move benchmarking into fire/CI for future PR testing
 - Specialize/optimize `HighFive::File` for our use-case
   - [x] 1D buffering mechanism
   - [x] high level of compression
