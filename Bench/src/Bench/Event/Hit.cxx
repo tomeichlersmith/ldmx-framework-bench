@@ -1,9 +1,5 @@
 #include "Bench/Event/Hit.h"
 
-#ifdef USE_ROOT
-ClassImp(bench::Hit);
-#endif
-
 namespace bench {
 
 Hit::Hit() {}

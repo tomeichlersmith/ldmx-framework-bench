@@ -3,13 +3,9 @@
 
 // STL
 #include <iostream>
-#include "Bench/Version.h"
 
-#ifdef USE_ROOT
-#include "TObject.h" // for ClassDef
-#else
+// H5
 #include "fire/h5/DataSet.h"
-#endif
 
 namespace bench {
 
@@ -151,6 +147,23 @@ class Hit {
   }
 
  private:
+  friend class fire::h5::DataSet<Hit>;
+  void attach(fire::h5::DataSet<Hit>& set) {
+    set.attach("layerID", layerID_);
+    set.attach("moduleID", moduleID_);
+    set.attach("time", time_);
+    set.attach("px", px_);
+    set.attach("py", py_);
+    set.attach("pz", pz_);
+    set.attach("energy",energy_);
+    set.attach("x", x_);
+    set.attach("y", y_);
+    set.attach("z", z_);
+    set.attach("trackID",trackID_);
+    set.attach("pdgID",pdgID_);
+  }
+
+ private:
   /**
    * The layer ID.
    */
@@ -208,27 +221,6 @@ class Hit {
    * The Sim PDG ID.
    */
   int pdgID_{0};
-
-#ifdef USE_ROOT
-  /// ROOT class definition
-  ClassDef(Hit, 1);
-#else
-  friend class fire::h5::DataSet<Hit>;
-  void attach(fire::h5::DataSet<Hit>& set) {
-    set.attach("layerID", layerID_);
-    set.attach("moduleID", moduleID_);
-    set.attach("time", time_);
-    set.attach("px", px_);
-    set.attach("py", py_);
-    set.attach("pz", pz_);
-    set.attach("energy",energy_);
-    set.attach("x", x_);
-    set.attach("y", y_);
-    set.attach("z", z_);
-    set.attach("trackID",trackID_);
-    set.attach("pdgID",pdgID_);
-  }
-#endif
 
 };  // Hit
 }  // namespace bench
