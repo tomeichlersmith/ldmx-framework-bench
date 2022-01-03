@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        num_events : [1,10,100,1000,10000,100000]
+        num_events : [1,10,100,1000,10000,100000,1000000]
         ref: ['main','root']
     defaults:
       run:
