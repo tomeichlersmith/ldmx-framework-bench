@@ -25,18 +25,18 @@ jobs:
       name: Build and Install
       run: |
         source rootless-env.sh
+        ldmx config
         ldmx cmake -B build -S .
         ldmx cmake --build build --target install
     -
       name: Run Benchmark
       run: |
         source rootless-env.sh
-        ldmx config
         ldmx ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000
     -
       name: Save Benchmark Data
       uses: actions/upload-artifact@v2
       with:
-        name: Benchmark-${{ github.sha }}
+        name: Benchmark-${{matrix.ref}}-${{github.sha}}
         path: data.csv
 
