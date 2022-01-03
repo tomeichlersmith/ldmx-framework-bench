@@ -8,21 +8,18 @@ Hit::~Hit() { Clear(); }
 
 void Hit::Print() const {
   std::cout << "Hit { "
-            << "id: " << id_ << ", "
             << "layerID: " << layerID_ << ", "
             << "moduleID: " << moduleID_ << ", "
             << "position: ( " << x_ << ", " << y_ << ", " << z_ << " ), "
-            << "edep: " << edep_ << ", "
+            << "energy: " << energy_ << ", "
             << "time: " << time_ << ", "
             << "momentum: ( " << px_ << ", " << py_ << ", " << pz_ << " )"
             << " }" << std::endl;
 }
 
 void Hit::Clear() {
-  id_ = 0;
   layerID_ = 0;
   moduleID_ = 0;
-  edep_ = 0;
   time_ = 0;
   px_ = 0;
   py_ = 0;
@@ -30,7 +27,6 @@ void Hit::Clear() {
   x_ = 0;
   y_ = 0;
   z_ = 0;
-  energy_ = 0;
   trackID_ = -1;
   pdgID_ = 0;
 }

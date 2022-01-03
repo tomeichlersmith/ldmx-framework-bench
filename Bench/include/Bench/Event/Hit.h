@@ -36,12 +36,6 @@ class Hit {
   void Clear();
 
   /**
-   * Get the detector ID of the hit.
-   * @return The detector ID of the hit.
-   */
-  int getID() const { return id_; };
-
-  /**
    * Get the geometric layer ID of the hit.
    * @return The layer ID of the hit.
    */
@@ -59,12 +53,6 @@ class Hit {
    * @return The position of the hit.
    */
   std::vector<float> getPosition() const { return {x_, y_, z_}; };
-
-  /**
-   * Get the energy deposited on the hit [MeV].
-   * @return The energy deposited on the hit.
-   */
-  float getEdep() const { return edep_; };
 
   /**
    * Get the energy
@@ -98,12 +86,6 @@ class Hit {
   int getPdgID() const { return pdgID_; };
 
   /**
-   * Set the detector ID of the hit.
-   * @param id The detector ID of the hit.
-   */
-  void setID(const long id) { this->id_ = id; };
-
-  /**
    * Set the geometric layer ID of the hit.
    * @param layerID The layer ID of the hit.
    */
@@ -123,12 +105,6 @@ class Hit {
    * @param z The Z position.
    */
   void setPosition(const float x, const float y, const float z);
-
-  /**
-   * Set the energy deposited on the hit [MeV].
-   * @param edep The energy deposited on the hit.
-   */
-  void setEdep(const float edep) { this->edep_ = edep; };
 
   /**
    * Set the energy of the hit.
@@ -173,10 +149,8 @@ class Hit {
  private:
   friend class fire::h5::DataSet<Hit>;
   void attach(fire::h5::DataSet<Hit>& set) {
-    set.attach("id",id_);
     set.attach("layerID", layerID_);
     set.attach("moduleID", moduleID_);
-    set.attach("edep", edep_);
     set.attach("time", time_);
     set.attach("px", px_);
     set.attach("py", py_);
@@ -191,22 +165,12 @@ class Hit {
 
  private:
   /**
-   * The detector ID.
-   */
-  int id_{0};
-
-  /**
    * The layer ID.
    */
   int layerID_{0};
 
   /** The module ID. */
   int moduleID_{0};
-
-  /**
-   * The energy deposited on the hit.
-   */
-  float edep_{0};
 
   /**
    * The global time of the hit.
