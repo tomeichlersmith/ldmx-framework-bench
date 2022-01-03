@@ -36,12 +36,6 @@ class Hit {
   void Clear();
 
   /**
-   * Get the detector ID of the hit.
-   * @return The detector ID of the hit.
-   */
-  int getID() const { return id_; };
-
-  /**
    * Get the geometric layer ID of the hit.
    * @return The layer ID of the hit.
    */
@@ -61,12 +55,6 @@ class Hit {
   std::vector<float> getPosition() const { return {x_, y_, z_}; };
 
   /**
-   * Get the energy deposited on the hit [MeV].
-   * @return The energy deposited on the hit.
-   */
-  float getEdep() const { return edep_; };
-
-  /**
    * Get the energy
    * @return The energy of the hit.
    */
@@ -77,13 +65,6 @@ class Hit {
    * @return The global time of the hit.
    */
   float getTime() const { return time_; };
-
-  /**
-   * Get the path length between the start and end points of the
-   * hit [mm].
-   * @return The path length of the hit.
-   */
-  float getPathLength() const { return pathLength_; };
 
   /**
    * Get the XYZ momentum of the particle at the position at which
@@ -103,12 +84,6 @@ class Hit {
    * @return The Sim particle track ID of the hit.
    */
   int getPdgID() const { return pdgID_; };
-
-  /**
-   * Set the detector ID of the hit.
-   * @param id The detector ID of the hit.
-   */
-  void setID(const long id) { this->id_ = id; };
 
   /**
    * Set the geometric layer ID of the hit.
@@ -132,12 +107,6 @@ class Hit {
   void setPosition(const float x, const float y, const float z);
 
   /**
-   * Set the energy deposited on the hit [MeV].
-   * @param edep The energy deposited on the hit.
-   */
-  void setEdep(const float edep) { this->edep_ = edep; };
-
-  /**
    * Set the energy of the hit.
    * @param e The energy of the hit.
    */
@@ -148,14 +117,6 @@ class Hit {
    * @param time The global time of the hit.
    */
   void setTime(const float time) { this->time_ = time; };
-
-  /**
-   * Set the path length of the hit [mm].
-   * @param pathLength The path length of the hit.
-   */
-  void setPathLength(const float pathLength) {
-    this->pathLength_ = pathLength;
-  };
 
   /**
    * Set the momentum of the particle at the position at which
@@ -187,22 +148,12 @@ class Hit {
 
  private:
   /**
-   * The detector ID.
-   */
-  int id_{0};
-
-  /**
    * The layer ID.
    */
   int layerID_{0};
 
   /** The module ID. */
   int moduleID_{0};
-
-  /**
-   * The energy deposited on the hit.
-   */
-  float edep_{0};
 
   /**
    * The global time of the hit.
@@ -243,11 +194,6 @@ class Hit {
    * The Z position.
    */
   float z_{0};
-
-  /**
-   * The path length of the hit.
-   */
-  float pathLength_{0};
 
   /**
    * The Sim Track ID.
