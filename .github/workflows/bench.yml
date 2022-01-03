@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        ref: ['hdf5','root']
+        n_events: [1,10,100,1000,10000,100000]
     defaults:
       run:
         shell: bash
@@ -20,23 +20,37 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
-        ref: ${{matrix.ref}}
+        ref: 'hdf5'
     -
-      name: Build and Install
+      name: Bench HDF5
       run: |
+        echo "::group::Build and Install"
         source rootless-env.sh
         ldmx config
         ldmx cmake -B build -S .
         ldmx cmake --build build --target install
+        echo "::group::Run Benchmark"
+        ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
+    - 
+      name: Get Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        ref: 'root'
     -
-      name: Run Benchmark
+      name: Bench HDF5
       run: |
+        echo "::group::Build and Install"
         source rootless-env.sh
-        ldmx ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000
+        ldmx config
+        ldmx cmake -B build -S .
+        ldmx cmake --build build --target install
+        echo "::group::Run Benchmark"
+        ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
     -
       name: Save Benchmark Data
       uses: actions/upload-artifact@v2
       with:
-        name: Benchmark-${{matrix.ref}}-${{github.sha}}
+        name: Benchmark-${{matrix.n_events}}-${{github.sha}}
         path: data.csv
 
