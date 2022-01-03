@@ -37,7 +37,7 @@ __print_csv_line__() {
 #   output/*_<num-events>.*
 __main__() {
   local trials=$1; shift
-  __print_csv_line__ runner serializer events time size > data.csv
+  [ -f data.csv ] || __print_csv_line__ runner serializer events time size > data.csv
   local br=$(__branch__)
   local n_events
   for n_events in $@; do
