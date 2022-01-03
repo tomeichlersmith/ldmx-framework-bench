@@ -33,5 +33,5 @@ jobs:
       run: |
         source rootless-env.sh
         ldmx config
-        ldmx time fire config.py ${{matrix.num_events}}
+        ldmx ./.github/workflows/bench.sh 100 ${{matrix.num_events}}
         stat output/*
