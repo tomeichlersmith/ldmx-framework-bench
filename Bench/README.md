@@ -49,6 +49,7 @@ ldmx GITHUB_REF=hdf5 ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000
 rm -r build .container-install
 # do ROOT based compiling and benchmark
 git checkout root
+git submodule update
 ldmx use dev v3.1 # choose container with ROOT
 ldmx cmake -B build -S .
 ldmx cmake --build build --target install
