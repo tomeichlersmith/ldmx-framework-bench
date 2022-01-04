@@ -26,6 +26,13 @@ __branch__() {
   echo ${GITHUB_REF#refs/heads/} 
 }
 
+__runner__() {
+  [ -f /.dockerenv ] && { echo "docker"; return 0; }
+  [ -f /singularity ] && { echo "singularity"; return 0; }
+  echo "bare"
+  return 0
+}
+
 # Print the five inputs into the five columns of a CSV line
 __print_csv_line__() {
   printf "%s,%s,%s,%s,%s\n" $@
@@ -39,12 +46,13 @@ __main__() {
   local trials=$1; shift
   [ -f data.csv ] || __print_csv_line__ runner serializer events time size > data.csv
   local br=$(__branch__)
+  local runner=$(__runner__)
   local n_events
   for n_events in $@; do
     echo "Benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} ${n_events})
     local s=$(stat -c "%s" output/*_${n_events}.*)
-    __print_csv_line__ docker ${br} ${n_events} ${t} ${s} >> data.csv
+    __print_csv_line__ ${runner} ${br} ${n_events} ${t} ${s} >> data.csv
   done
 }
 
