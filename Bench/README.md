@@ -46,7 +46,7 @@ ldmx cmake -B build -S .
 ldmx cmake --build build --target install -- -j
 ldmx GITHUB_REF=hdf5 ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000 1000000
 # cleanup
-rm -r build .container-install
+rm -r build .container-install output
 # do ROOT based compiling and benchmark
 git checkout root
 git submodule update
