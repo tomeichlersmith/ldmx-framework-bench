@@ -32,7 +32,7 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
   - [HDF5 and h5py have a MPI interface](https://docs.h5py.org/en/stable/mpi.html) which could be used in conjunction with Rogue to write out data from multiple DAQ servers at once.
 - Boost.Histogram
   - Already accessible, easy-to-use histogram filler following modern C++ coding practices
-  - [More flexible and faster than ROOT or gsl](https://www.boost.org/doc/libs/1_70_0/libs/histogram/doc/html/histogram/benchmarks.html)
+  - [More flexible and faster than ROOT or gsl](https://www.boost.org/doc/libs/1_78_0/libs/histogram/doc/html/histogram/benchmarks.html)
 - Hours spent dealing with ROOT BS
   - Estimates over the lifetime of LDMX
 
