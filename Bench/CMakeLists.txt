@@ -11,7 +11,10 @@ add_library(Bench_Event SHARED src/Bench/Event/Hit.cxx)
 target_include_directories(Bench_Event PUBLIC include)
 target_link_libraries(Bench_Event PUBLIC fire::h5)
 
-add_library(Bench SHARED src/Bench/Produce.cxx)
+add_library(Bench SHARED 
+  src/Bench/Produce.cxx
+  src/Bench/Recon.cxx
+  )
 target_include_directories(Bench PUBLIC include)
 target_link_libraries(Bench PUBLIC Bench_Event fire::framework)
 
