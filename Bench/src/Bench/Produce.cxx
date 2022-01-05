@@ -19,7 +19,7 @@ class Produce : public fire::Producer {
   Produce(const fire::config::Parameters& ps)
     : fire::Producer(ps),
     rng{}, // this is where a seed for the RNG would be put
-    rand_size{1, std::size_t(ps.get<int>("max_size",100))},
+    rand_size{1, 100},
     rand_float{0.,100.},
     rand_int{-100,100}
   {}
@@ -37,7 +37,7 @@ class Produce : public fire::Producer {
       val.setTime(rand_float(rng));
       val.setMomentum(rand_float(rng),rand_float(rng),rand_float(rng));
     }
-    event.add("rand_data", rand_data);
+    event.add("randdata", rand_data);
   }
 };  // Produce
 
