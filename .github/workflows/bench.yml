@@ -90,9 +90,9 @@ jobs:
       run: |
         for f in ./Benchmark-*/data.csv; do
           # merged data not created? cat entire data file to include headers
-          [ ! -f data.csv ] && cat ${f} > data.csv
+          [ ! -f data.csv ] && cat ${f} | tee data.csv
           # start with 2nd line to avoid repeating headers
-          tail -n +2 ${f} >> data.csv 
+          tail -n +2 ${f} | tee -a data.csv 
         done
     -
       name: Upload Merged CSV
