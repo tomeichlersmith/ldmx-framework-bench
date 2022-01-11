@@ -14,44 +14,44 @@ on:
         default: 10
 
 jobs:
-#  build:
-#    runs-on: ubuntu-latest
-#    strategy:
-#      matrix:
-#        branch: ['hdf5','root']
-#    steps:
-#    -
-#      name: Setup QEMU
-#      uses: docker/setup-qemu-action@v1
-#    -
-#      name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v1
-#    - 
-#      name: Get Build Context
-#      uses: actions/checkout@v2
-#      with:
-#        submodules: 'recursive'
-#        ref: ${{matrix.branch}}
-#    -
-#      name: Build the Image
-#      uses: docker/build-push-action@v2
-#      with:
-#        push: false # don't push to docker hub yet
-#        load: true # allow image to be availabe to the docker program later in this job
-#        tags: ${{matrix.branch}}
-#        context: .
-#    -
-#      name: Package Image
-#      run: docker save ${{matrix.branch}} > ${{matrix.branch}}-image.tar
-#    - 
-#      name: Upload Newly Built Image
-#      uses: actions/upload-artifact@v2
-#      with:
-#        name: ${{matrix.branch}}-image
-#        path: ${{matrix.branch}}-image.tar
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        branch: ['hdf5','root']
+    steps:
+    -
+      name: Setup QEMU
+      uses: docker/setup-qemu-action@v1
+    -
+      name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1
+    - 
+      name: Get Build Context
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        ref: ${{matrix.branch}}
+    -
+      name: Build the Image
+      uses: docker/build-push-action@v2
+      with:
+        push: false # don't push to docker hub yet
+        load: true # allow image to be availabe to the docker program later in this job
+        tags: ${{matrix.branch}}
+        context: .
+    -
+      name: Package Image
+      run: docker save ${{matrix.branch}} > ${{matrix.branch}}-image.tar
+    - 
+      name: Upload Newly Built Image
+      uses: actions/upload-artifact@v2
+      with:
+        name: ${{matrix.branch}}-image
+        path: ${{matrix.branch}}-image.tar
 
-#    needs: build
   bench:
+    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
