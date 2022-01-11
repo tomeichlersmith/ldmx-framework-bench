@@ -1,4 +1,4 @@
-FROM ldmx/dev:hdf5
+FROM ldmx/dev:v3.1
 
 # build and install
 COPY . /src/
