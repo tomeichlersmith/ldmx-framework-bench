@@ -41,7 +41,7 @@ jobs:
         echo "::endgroup::"
         echo "::group::Run Benchmark"
         ldmx ./.github/workflows/bench.sh \
-          ${GITHUB_REF#refs/heads/} ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+          hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         rm -r output
         echo "::endgroup::"
     - 
@@ -50,6 +50,7 @@ jobs:
       with:
         submodules: 'recursive'
         ref: 'root'
+        clean: false
     -
       name: Bench ROOT
       run: |
@@ -61,7 +62,7 @@ jobs:
         echo "::endgroup::"
         echo "::group::Run Benchmark"
         ldmx ./.github/workflows/bench.sh \
-          ${GITHUB_REF#refs/heads/} ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+          root ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         rm -r output
         echo "::endgroup::"
     -
