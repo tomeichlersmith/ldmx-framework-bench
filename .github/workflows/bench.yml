@@ -95,12 +95,6 @@ jobs:
           tail -n +2 ${f} | tee -a data.csv 
         done
     -
-      name: Upload Merged CSV
-      uses: actions/upload-artifact@v2
-      with:
-        name: Benchmark-${{github.sha}}
-        path: data.csv
-    -
       name: Setup Python
       uses: actions/setup-python@v2
       with:
@@ -115,5 +109,5 @@ jobs:
       name: Upload Plot
       uses: actions/upload-artifact@v2
       with:
-        name: Benchmark-Plot-${{github.sha}}
-        path: data.pdf
+        name: Benchmark-Results
+        path: data.pdf data.csv
