@@ -4,7 +4,7 @@ namespace bench {
 
 Hit::Hit() {}
 
-Hit::~Hit() { Clear(); }
+Hit::~Hit() {}
 
 void Hit::Print() const {
   std::cout << "Hit { "
@@ -17,7 +17,7 @@ void Hit::Print() const {
             << " }" << std::endl;
 }
 
-void Hit::Clear() {
+void Hit::clear() {
   layerID_ = 0;
   moduleID_ = 0;
   time_ = 0;

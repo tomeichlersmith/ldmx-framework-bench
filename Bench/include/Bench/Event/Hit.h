@@ -33,7 +33,7 @@ class Hit {
   /**
    * Reset the Hit object.
    */
-  void Clear();
+  void clear();
 
   /**
    * Get the geometric layer ID of the hit.
