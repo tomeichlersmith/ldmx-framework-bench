@@ -20,10 +20,11 @@ __time__() {
     END { if (nr>0) printf("%f\n", real/nr); }'
 }
 
-# get the current branch name
-#   assuming in GitHub workflow
-__branch__() {
-  echo ${GITHUB_REF#refs/heads/} 
+__runner__() {
+  [ -f /.dockerenv ] && { echo "docker"; return 0; }
+  [ -f /singularity ] && { echo "singularity"; return 0; }
+  echo "bare"
+  return 0
 }
 
 # Print the five inputs into the five columns of a CSV line
@@ -32,19 +33,20 @@ __print_csv_line__() {
 }
 
 # input trials per n_events run and then squence of n_events to run
-#  e.g. <script> 100 1 10 100 1000 10000 100000
+#  e.g. <script> <name> 100 1 10 100 1000 10000 100000
 # we get the size of the output file by assuming it matches the form
 #   output/*_<num-events>.*
 __main__() {
+  local tag=$1; shift
   local trials=$1; shift
   [ -f data.csv ] || __print_csv_line__ runner serializer events time size > data.csv
-  local br=$(__branch__)
+  local runner=$(__runner__)
   local n_events
   for n_events in $@; do
     echo "Benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} ${n_events})
     local s=$(stat -c "%s" output/*_${n_events}.*)
-    __print_csv_line__ docker ${br} ${n_events} ${t} ${s} >> data.csv
+    __print_csv_line__ ${runner} ${tag} ${n_events} ${t} ${s} >> data.csv
   done
 }
 
