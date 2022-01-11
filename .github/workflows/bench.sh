@@ -39,14 +39,14 @@ __print_csv_line__() {
 __main__() {
   local tag=$1; shift
   local trials=$1; shift
-  [ -f data.csv ] || __print_csv_line__ runner serializer events time size > data.csv
+  [ -f data.csv ] || __print_csv_line__ runner serializer events time size | tee data.csv
   local runner=$(__runner__)
   local n_events
   for n_events in $@; do
     echo "Benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} ${n_events})
     local s=$(stat -c "%s" output/*_${n_events}.*)
-    __print_csv_line__ ${runner} ${tag} ${n_events} ${t} ${s} >> data.csv
+    __print_csv_line__ ${runner} ${tag} ${n_events} ${t} ${s} | tee -a data.csv
   done
 }
 
