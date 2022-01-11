@@ -147,8 +147,10 @@ jobs:
       name: Plot
       run: python .github/workflows/bench_plot.py data.csv
     -
-      name: Upload Plot
+      name: Upload Results
       uses: actions/upload-artifact@v2
       with:
         name: Benchmark-Results
-        path: data.pdf data.csv
+        path: |
+          data.pdf
+          data.csv
