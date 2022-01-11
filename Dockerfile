@@ -11,3 +11,4 @@ RUN cmake \
       --target install &&\
     rm -rf /src/ &&\
     ldconfig
+ENV PYTHONPATH ${__prefix}/python
