@@ -44,12 +44,16 @@ jobs:
           hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         rm -r output
         echo "::endgroup::"
+    -
+      name: Clean Repository
+      run: git clean -ffdx -e data.csv
     - 
       name: Get Repository
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
         ref: 'root'
+        clean: false
     -
       name: Bench ROOT
       run: |
