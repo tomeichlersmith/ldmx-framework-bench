@@ -81,6 +81,7 @@ jobs:
           -u $(id -u ${USER}):$(id -u ${USER}) \
           hdf5 $(pwd) \
           ./.github/workflows/bench.sh hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+        rm -r output
         echo "::endgroup::"
     -
       name: Download ROOT Build
@@ -100,6 +101,7 @@ jobs:
           -u $(id -u ${USER}):$(id -u ${USER}) \
           root $(pwd) \
           ./.github/workflows/bench.sh root ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+        rm -r output
         echo "::endgroup::"
     -
       name: Save Benchmark Data
@@ -130,10 +132,13 @@ jobs:
       name: Merge Benchmarking Data
       run: |
         for f in ./Benchmark-*/data.csv; do
-          # merged data not created? cat entire data file to include headers
-          [ ! -f data.csv ] && cat ${f} | tee data.csv
-          # start with 2nd line to avoid repeating headers
-          tail -n +2 ${f} | tee -a data.csv 
+          if [ ! -f data.csv ]; then
+            # merged data not created? cat entire data file to include headers
+            cat ${f} | tee data.csv
+          else
+            # start with 2nd line to avoid repeating headers
+            tail -n +2 ${f} | tee -a data.csv 
+          fi
         done
     -
       name: Setup Python
