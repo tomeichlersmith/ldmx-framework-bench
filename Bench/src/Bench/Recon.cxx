@@ -19,7 +19,7 @@ class Recon : public fire::Producer {
   {}
   ~Recon() = default;
   void produce(fire::Event& event) final override {
-    const auto& rand_data = event.get<std::vector<Hit>>("randdata","bench");
+    const auto& rand_data = event.get<std::vector<Hit>>("randdata");
     std::size_t i;
     do {
       i = rand_index(rng);
