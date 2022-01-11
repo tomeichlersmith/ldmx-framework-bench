@@ -13,45 +13,9 @@ on:
         required: false
         default: 10
 
+# workflow consists of one building and testing job
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        branch: ['hdf5','root']
-    steps:
-    -
-      name: Setup QEMU
-      uses: docker/setup-qemu-action@v1
-    -
-      name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - 
-      name: Get Build Context
-      uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-        ref: ${{matrix.branch}}
-    -
-      name: Build the Image
-      uses: docker/build-push-action@v2
-      with:
-        push: false # don't push to docker hub yet
-        load: true # allow image to be availabe to the docker program later in this job
-        tags: ${{matrix.branch}}
-        context: .
-    -
-      name: Package Image
-      run: docker save ${{matrix.branch}} > ${{matrix.branch}}-image.tar
-    - 
-      name: Upload Newly Built Image
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{matrix.branch}}-image
-        path: ${{matrix.branch}}-image.tar
-
   bench:
-    needs: build
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -61,46 +25,43 @@ jobs:
         shell: bash
     steps:
     - 
-      name: Get Repository for Scripts
+      name: Get Repository
       uses: actions/checkout@v2
-    -
-      name: Download HDF5 Build
-      uses: actions/download-artifact@v2
       with:
-        name: hdf5-image
+        submodules: 'recursive'
+        ref: 'hdf5'
     -
       name: Bench HDF5
       run: |
-        echo "::group::Load Container"
-        docker load --input hdf5-image.tar
+        echo "::group::Build and Install"
+        source rootless-env.sh
+        ldmx config
+        ldmx cmake -B build -S .
+        ldmx cmake --build build --target install
         echo "::endgroup::"
         echo "::group::Run Benchmark"
-        docker run \
-          --rm \
-          -v $(pwd):$(pwd) \
-          -u $(id -u ${USER}):$(id -u ${USER}) \
-          hdf5 $(pwd) \
-          ./.github/workflows/bench.sh hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+        ldmx ./.github/workflows/bench.sh \
+          ${GITHUB_REF#refs/heads/} ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         rm -r output
         echo "::endgroup::"
-    -
-      name: Download ROOT Build
-      uses: actions/download-artifact@v2
+    - 
+      name: Get Repository
+      uses: actions/checkout@v2
       with:
-        name: root-image
+        submodules: 'recursive'
+        ref: 'root'
     -
       name: Bench ROOT
       run: |
-        echo "::group::Load Container"
-        docker load --input root-image.tar
+        echo "::group::Build and Install"
+        source rootless-env.sh
+        ldmx config
+        ldmx cmake -B build -S .
+        ldmx cmake --build build --target install
         echo "::endgroup::"
         echo "::group::Run Benchmark"
-        docker run \
-          --rm \
-          -v $(pwd):$(pwd) \
-          -u $(id -u ${USER}):$(id -u ${USER}) \
-          root $(pwd) \
-          ./.github/workflows/bench.sh root ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
+        ldmx ./.github/workflows/bench.sh \
+          ${GITHUB_REF#refs/heads/} ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         rm -r output
         echo "::endgroup::"
     -
