@@ -30,8 +30,8 @@ which event number points to use, and what to label this run.
 
 ```bash
 ldmx cmake -B build -S .
-ldmx cmake --build build --target install -- -j
-ldmx GITHUB_REF=<label> ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000 1000000
+ldmx cmake --build build --target install
+ldmx ./.github/workflows/bench.sh <label> 100 1 10 100 1000 10000 100000 1000000
 ```
 
 Outlining the full benchmarking process from having nothing on your computer.
@@ -43,8 +43,8 @@ source rootless-env.sh
 git checkout hdf5
 ldmx use dev hdf5 # choose container with HDF5
 ldmx cmake -B build -S .
-ldmx cmake --build build --target install -- -j
-ldmx GITHUB_REF=hdf5 ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000 1000000
+ldmx cmake --build build --target install
+ldmx ./.github/workflows/bench.sh hdf5 100 1 10 100 1000 10000 100000 1000000
 # cleanup
 rm -r build .container-install output
 # do ROOT based compiling and benchmark
@@ -53,5 +53,5 @@ git submodule update
 ldmx use dev v3.1 # choose container with ROOT
 ldmx cmake -B build -S .
 ldmx cmake --build build --target install
-ldmx GITHUB_REF=root ./.github/workflows/bench.sh 100 1 10 100 1000 10000 100000 1000000
+ldmx ./.github/workflows/bench.sh root 100 1 10 100 1000 10000 100000 1000000
 ```
