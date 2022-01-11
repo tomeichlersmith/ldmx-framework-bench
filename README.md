@@ -73,7 +73,6 @@ and the default container image be the hdf5 image.
   - [x] conditions system operational and tested
   - [x] random number seed service
   - [x] logging
-  - [ ] processor exceptions
 
 ## Future Plans
 - `fire` versioned and installed in developers container
