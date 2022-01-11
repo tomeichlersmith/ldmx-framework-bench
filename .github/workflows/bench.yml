@@ -39,6 +39,7 @@ jobs:
         push: false # don't push to docker hub yet
         load: true # allow image to be availabe to the docker program later in this job
         tags: ${{matrix.branch}}
+        context: .
     -
       name: Package Image
       run: docker save ${{matrix.branch}} > ${{matrix.branch}}-image.tar
