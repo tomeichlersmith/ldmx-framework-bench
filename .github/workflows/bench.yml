@@ -64,10 +64,10 @@ jobs:
       name: Get Repository for Scripts
       uses: actions/checkout@v2
     -
-      name: Download Competing Builds
+      name: Download HDF5 Build
       uses: actions/download-artifact@v2
       with:
-        name: hdf5-image root-image
+        name: hdf5-image
     -
       name: Bench HDF5
       run: |
@@ -82,6 +82,11 @@ jobs:
           hdf5 $(pwd) \
           ./.github/workflows/bench.sh hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         echo "::endgroup::"
+    -
+      name: Download ROOT Build
+      uses: actions/download-artifact@v2
+      with:
+        name: root-image
     -
       name: Bench ROOT
       run: |
