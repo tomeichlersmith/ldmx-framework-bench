@@ -49,7 +49,7 @@ jobs:
         ldmx cmake --build build --target install
         echo "::endgroup::"
         echo "::group::Run Benchmark"
-        ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
+        ldmx ./.github/workflows/bench.sh 10 ${{matrix.n_events}}
         echo "::endgroup::"
     -
       name: Save Benchmark Data
@@ -58,3 +58,56 @@ jobs:
         name: Benchmark-${{matrix.n_events}}-${{github.sha}}
         path: data.csv
 
+  plot:
+    needs: bench
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        n_events: [1,10,100,1000,10000,100000]
+    defaults:
+      run:
+        shell: bash
+    steps:
+    - 
+      name: Get Repository
+      uses: actions/checkout@v2
+      with:
+        submodules: 'recursive'
+        ref: 'hdf5'
+    - 
+      name: Download Benchmarking Data
+      uses: actions/download-artifact@v2
+      with:
+        path: .
+    - 
+      name: Merge Benchmarking Data
+      run: |
+        for f in ./Benchmark-*/data.csv; do
+          # merged data not created? cat entire data file to include headers
+          [ ! -f data.csv ] && cat ${f} > data.csv
+          # start with 2nd line to avoid repeating headers
+          tail -n +2 ${f} >> data.csv 
+        done
+    -
+      name: Upload Merged CSV
+      uses: actions/upload-artifact@v2
+      with:
+        name: Benchmark-${{github.sha}}
+        path: data.csv
+    -
+      name: Setup Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.x'
+    -
+      name: Install Plotting Requirements
+      run: python -m pip install --upgrade matplotlib pandas
+    -
+      name: Plot
+      run: python .github/workflows/bench_plot.py data.csv
+    -
+      name: Upload Plot
+      uses: actions/upload-artifact@v2
+      with:
+        name: Benchmark-Plot-${{github.sha}}
+        path: data.pdf
