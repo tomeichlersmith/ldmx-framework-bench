@@ -11,4 +11,4 @@ RUN cmake \
       --target install &&\
     rm -rf /src/ &&\
     ldconfig
-ENV PYTHONPATH ${__prefix}/python
+ENV LDMX_SW_INSTALL ${__prefix}
