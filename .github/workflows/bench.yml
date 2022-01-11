@@ -2,7 +2,16 @@
 name: Benchmark
 
 on:
-  workflow_dispatch
+  workflow_dispatch:
+    inputs:
+      n_events_list:
+        description: 'JSON-style listing of event numbers to benchmark'
+        required: false
+        default: '[1,10,100,1000]'
+      n_trials:
+        descrption: 'Number of trials per event number to do for benchmark average'
+        required: false
+        default: 10
 
 # workflow consists of one building and testing job
 jobs:
@@ -10,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        n_events: [1,10,100,1000,10000,100000]
+        n_events: ${{fromJson(github.event.inputs.n_events_list)}}
     defaults:
       run:
         shell: bash
@@ -31,7 +40,7 @@ jobs:
         ldmx cmake --build build --target install
         echo "::endgroup::"
         echo "::group::Run Benchmark"
-        ldmx ./.github/workflows/bench.sh 100 ${{matrix.n_events}}
+        ldmx ./.github/workflows/bench.sh ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         echo "::endgroup::"
     - 
       name: Get Repository
@@ -49,7 +58,7 @@ jobs:
         ldmx cmake --build build --target install
         echo "::endgroup::"
         echo "::group::Run Benchmark"
-        ldmx ./.github/workflows/bench.sh 10 ${{matrix.n_events}}
+        ldmx ./.github/workflows/bench.sh ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
         echo "::endgroup::"
     -
       name: Save Benchmark Data
@@ -61,9 +70,6 @@ jobs:
   plot:
     needs: bench
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        n_events: [1,10,100,1000,10000,100000]
     defaults:
       run:
         shell: bash
