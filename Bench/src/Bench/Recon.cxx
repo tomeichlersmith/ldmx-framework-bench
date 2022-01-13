@@ -19,7 +19,7 @@ class Recon : public framework::Producer {
   {}
   ~Recon() = default;
   void produce(framework::Event& event) final override {
-    const auto& rand_data = event.get<std::vector<Hit>>("randdata");
+    const auto& rand_data = event.getCollection<Hit>("randdata");
     std::size_t i;
     do {
       i = rand_index(rng);
