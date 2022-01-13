@@ -29,6 +29,7 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     ratio_time.set_xscale('log')
     ratio_time.set_xlabel('N Events')
     ratio_time.set_ylabel('hdf5 Time / root Time')
+    ratio_time.set_ylim(bottom=0.,top=1.1)
     ratio_time.plot(events, hdf5_time/root_time, 
                 label='hdf5/root', color = 'black')
 
@@ -40,6 +41,7 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     ratio_size.set_xscale('log')
     ratio_size.set_xlabel('N Events')
     ratio_size.set_ylabel('hdf5 Size / root Size')
+    ratio_size.set_ylim(bottom=0.5,top=5.5)
     ratio_size.plot(events, hdf5_size/root_size,
                color='black')
 
