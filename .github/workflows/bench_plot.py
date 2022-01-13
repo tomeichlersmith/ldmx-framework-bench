@@ -78,6 +78,7 @@ def main() :
             reco[reco['serializer']=='root']['size'].to_numpy(),
             'Reconstruction')
         plt.savefig('recon_'+data_file.replace('csv','pdf'))
+        plt.savefig('recon_'+data_file.replace('csv','png'))
         plt.clf()
 
     sys.exit(0)
