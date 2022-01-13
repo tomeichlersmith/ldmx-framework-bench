@@ -14,7 +14,7 @@
 __time__() {
   local n_trials=$1
   for ((i = 0; i < n_trials; i++)); do
-    time -p fire ${@:2}
+    time -p fire ${@:2} || return $?
   done |& awk '/real/ { real = real + $2; nr++ }
     END { if (nr>0) printf("%f\n", real/nr); }'
 }
@@ -44,10 +44,12 @@ __main__() {
   for n_events in $@; do
     echo "Benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} produce.py ${n_events})
+    [[ "$?" != "0" ]] && { echo "fire produce.py Errored Out!"; return 1; }
     local produce_output="output/output_${n_events}"
     local s=$(stat -c "%s" ${produce_output}.*)
     __print_csv_line__ ${runner} ${tag} produce ${n_events} ${t} ${s} | tee -a data.csv
     t=$(__time__ ${trials} recon.py ${produce_output}.*)
+    [[ "$?" != "0" ]] && { echo "fire recon.py Errored Out!"; return 1; }
     s=$(stat -c "%s" output/recon_output_${n_events}.*) 
     __print_csv_line__ ${runner} ${tag} recon ${n_events} ${t} ${s} | tee -a data.csv
   done
