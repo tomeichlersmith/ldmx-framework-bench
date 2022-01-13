@@ -30,4 +30,6 @@ jobs:
         source rootless-env.sh
         ldmx cmake -B build -S .
         cd build
-        ldmx make
+        ldmx make install
+        ldmx fire produce.py 10
+        ldmx fire recon.py output/output_10.*
