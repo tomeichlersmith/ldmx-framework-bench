@@ -55,3 +55,7 @@ ldmx cmake -B build -S .
 ldmx cmake --build build --target install
 ldmx ./.github/workflows/bench.sh root 100 1 10 100 1000 10000 100000 1000000
 ```
+
+## Results
+
+![User Class Benchmarking Data](results/data.pdf)
