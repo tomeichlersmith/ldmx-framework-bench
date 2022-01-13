@@ -6,7 +6,7 @@
 
 namespace bench {
 
-class Recon : public fire::Producer {
+class Recon : public framework::Producer {
   /// the random number generator, unseeded so it produces the same results each time
   std::mt19937 rng;
   /// the distribution of sizes
