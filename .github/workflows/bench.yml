@@ -122,5 +122,6 @@ jobs:
       with:
         name: Benchmark-Results
         path: |
-          data.pdf
+          *data.pdf
+          *data.png
           data.csv
