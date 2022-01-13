@@ -55,7 +55,7 @@ def main() :
             sys.stderr.write(f'ERROR: {data_file} not accessible.\n')
             sys.exit(2)
 
-        data = pd.read_csv(name)
+        data = pd.read_csv(data_file)
     
         prod = data[data['mode']=='produce']
     
