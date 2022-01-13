@@ -6,16 +6,15 @@
 
 # define helpful avg timeing function
 #   source: https://stackoverflow.com/a/54920339/17617632
-# usage: time <trials> <num-events>
+# usage: time <trials> <fire-args>
 #   removed tracking of user and sys times
 #   just prints out the avg real time in seconds
 #   assumes that the string 'real' does not appear in
 #   output of 'fire'
 __time__() {
   local n_trials=$1
-  local n_events=$2
   for ((i = 0; i < n_trials; i++)); do
-    time -p fire config.py ${n_events}
+    time -p fire ${@:2}
   done |& awk '/real/ { real = real + $2; nr++ }
     END { if (nr>0) printf("%f\n", real/nr); }'
 }
@@ -29,7 +28,7 @@ __runner__() {
 
 # Print the five inputs into the five columns of a CSV line
 __print_csv_line__() {
-  printf "%s,%s,%s,%s,%s\n" $@
+  printf "%s,%s,%s,%s,%s,%s\n" $@
 }
 
 # input trials per n_events run and then squence of n_events to run
@@ -39,14 +38,18 @@ __print_csv_line__() {
 __main__() {
   local tag=$1; shift
   local trials=$1; shift
-  [ -f data.csv ] || __print_csv_line__ runner serializer events time size | tee data.csv
+  [ -f data.csv ] || __print_csv_line__ runner serializer mode events time size | tee data.csv
   local runner=$(__runner__)
   local n_events
   for n_events in $@; do
     echo "Benchmarking ${n_events} Events"
-    local t=$(__time__ ${trials} ${n_events})
-    local s=$(stat -c "%s" output/*_${n_events}.*)
-    __print_csv_line__ ${runner} ${tag} ${n_events} ${t} ${s} | tee -a data.csv
+    local t=$(__time__ ${trials} produce.py ${n_events})
+    local produce_output="output/output_${n_events}"
+    local s=$(stat -c "%s" ${produce_output}.*)
+    __print_csv_line__ ${runner} ${tag} produce ${n_events} ${t} ${s} | tee -a data.csv
+    t=$(__time__ ${trials} recon.py ${produce_output}.*)
+    s=$(stat -c "%s" output/recon_output_${n_events}.*) 
+    __print_csv_line__ ${runner} ${tag} recon ${n_events} ${t} ${s} | tee -a data.csv
   done
 }
 
