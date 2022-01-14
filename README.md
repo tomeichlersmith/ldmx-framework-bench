@@ -14,7 +14,7 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     come into existence that are as performative, easier to use, and better documented than ROOT.
 - ROOT is highly performative for our usecase, will we see reduced speed?
   - I have been developing a [benchmark test](Bench) comparing ROOT and HDF5 frameworks.
-  - This test actually shows that the HDF5-based framework is slightly faster than the ROOT framework.
+  - This test actually shows that the HDF5-based framework is five times faster than the ROOT framework.
 - ROOT has long term-support, why not rely on that?
   - HDF5, matplotlib, pandas, and other industry tools are well supported by the wider (non-HEP) community,
     so we can safely rely on them to be maintained in the future. Moreover, since they have a wider user base,
