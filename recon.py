@@ -16,6 +16,6 @@ p.output_file = fire.cfg.OutputFile(
         )
 
 # keep everything for better comparison to old framework
-p.drop_keep_rules = [ fire.cfg.DropKeepRule('.*',True) ]
+p.keep('.*')
 
 p.sequence = [ fire.cfg.Producer('make','bench::Recon','Bench') ]
