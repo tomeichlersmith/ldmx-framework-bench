@@ -69,6 +69,7 @@ def main() :
             prod[prod['serializer']=='root']['size'].to_numpy(),
             'Production')
         plt.savefig('production_'+data_file.replace('csv','pdf'))
+        plt.savefig('production_'+data_file.replace('csv','png'))
         plt.clf()
 
         reco = data[data['mode']=='recon']

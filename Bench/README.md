@@ -20,6 +20,8 @@ stat output/*
 
 To obtain how large the output data file is.
 
+[Latest Results](results)
+
 ## Run Locally
 
 If you want to run this benchmarking test on your own machine, you can use the script that the GitHub workflow uses.
@@ -55,7 +57,3 @@ ldmx cmake -B build -S .
 ldmx cmake --build build --target install
 ldmx ./.github/workflows/bench.sh root 100 1 10 100 1000 10000 100000 1000000
 ```
-
-## Results
-
-![User Class Benchmarking Data](results/data.pdf)
