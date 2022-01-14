@@ -123,12 +123,3 @@ jobs:
         git add Bench/results/*
         git commit -m "auto commit: updated benchmarking results"
         git push
-    -
-      name: Upload Results
-      uses: actions/upload-artifact@v2
-      with:
-        name: Benchmark-Results
-        path: |
-          *data.pdf
-          *data.png
-          data.csv
