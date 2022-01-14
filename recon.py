@@ -15,4 +15,7 @@ p.output_file = fire.cfg.OutputFile(
         shuffle = False
         )
 
+# keep everything for better comparison to old framework
+p.keep('*')
+
 p.sequence = [ fire.cfg.Producer('make','bench::Recon','Bench') ]
