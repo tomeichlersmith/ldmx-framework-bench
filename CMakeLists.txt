@@ -3,13 +3,6 @@ cmake_minimum_required(VERSION 3.12)
 
 project(ldmx-framework-bench) 
 
-# If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
-# a reasonable default ($PWD/install).  
-if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
-  message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
-endif()
-
 # If a user is building outside of a Docker or Singularity environment, 
 # warn them. 
 if (NOT EXISTS /.dockerenv AND NOT EXISTS /singularity)
@@ -32,6 +25,13 @@ endif()
 
 option(USE_ROOT "Use ROOT-based framework instead of HDF5-based one" OFF)
 if (USE_ROOT)
+  # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
+  # a reasonable default ($PWD/install).  
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
+    message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
+  endif()
+
   # Load the BuildMacros module. If loaded correctly, the variable 
   # 'build_macros_found' will be set to the path of the module.  Otherwise, it
   # is set to NOTFOUND.
@@ -54,6 +54,13 @@ if (USE_ROOT)
   # The framework has all the backend code needed to run all processors.
   add_subdirectory(Framework)
 else()
+  # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
+  # a reasonable default ($PWD/install).  
+  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
+    message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
+  endif()
+
   find_package(fire)
   if (NOT fire_FOUND)
     # pre-compiled version not installed
@@ -70,3 +77,4 @@ else()
 endif()
 
 add_subdirectory(Bench)
+
