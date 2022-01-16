@@ -4,8 +4,13 @@
 // STL
 #include <iostream>
 
+#ifdef USE_ROOT
+// ROOT
+#include "TObject.h"  //For ClassDef
+#else
 // H5
 #include "fire/h5/DataSet.h"
+#endif
 
 namespace bench {
 
@@ -33,7 +38,11 @@ class Hit {
   /**
    * Reset the Hit object.
    */
+#ifdef USE_ROOT
+  void Clear();
+#else
   void clear();
+#endif
 
   /**
    * Get the geometric layer ID of the hit.
@@ -146,24 +155,6 @@ class Hit {
     return this->getTime() < rhs.getTime();
   }
 
- private:
-  friend class fire::h5::DataSet<Hit>;
-  void attach(fire::h5::DataSet<Hit>& set) {
-    set.attach("layerID", layerID_);
-    set.attach("moduleID", moduleID_);
-    set.attach("time", time_);
-    set.attach("px", px_);
-    set.attach("py", py_);
-    set.attach("pz", pz_);
-    set.attach("energy",energy_);
-    set.attach("x", x_);
-    set.attach("y", y_);
-    set.attach("z", z_);
-    set.attach("trackID",trackID_);
-    set.attach("pdgID",pdgID_);
-  }
-
- private:
   /**
    * The layer ID.
    */
@@ -221,6 +212,29 @@ class Hit {
    * The Sim PDG ID.
    */
   int pdgID_{0};
+
+#ifdef USE_ROOT
+  /**
+   * The ROOT class definition.
+   */
+  ClassDef(Hit, 1);
+#else
+  friend class fire::h5::DataSet<Hit>;
+  void attach(fire::h5::DataSet<Hit>& set) {
+    set.attach("layerID", layerID_);
+    set.attach("moduleID", moduleID_);
+    set.attach("time", time_);
+    set.attach("px", px_);
+    set.attach("py", py_);
+    set.attach("pz", pz_);
+    set.attach("energy",energy_);
+    set.attach("x", x_);
+    set.attach("y", y_);
+    set.attach("z", z_);
+    set.attach("trackID",trackID_);
+    set.attach("pdgID",pdgID_);
+  }
+#endif
 
 };  // Hit
 }  // namespace bench

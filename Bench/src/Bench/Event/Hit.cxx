@@ -1,5 +1,9 @@
 #include "Bench/Event/Hit.h"
 
+#ifdef USE_ROOT
+ClassImp(bench::Hit);
+#endif
+
 namespace bench {
 
 Hit::Hit() {}
@@ -17,7 +21,11 @@ void Hit::Print() const {
             << " }" << std::endl;
 }
 
+#ifdef USE_ROOT
+void Hit::Clear() {
+#else
 void Hit::clear() {
+#endif
   layerID_ = 0;
   moduleID_ = 0;
   time_ = 0;
@@ -27,6 +35,7 @@ void Hit::clear() {
   x_ = 0;
   y_ = 0;
   z_ = 0;
+  energy_ = 0;
   trackID_ = -1;
   pdgID_ = 0;
 }

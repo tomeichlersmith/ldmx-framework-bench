@@ -1,10 +1,19 @@
 
+#ifdef USE_ROOT
+#include "Framework/EventProcessor.h"
+#else
 #include "fire/Processor.h"
+#endif
+
 #include "Bench/Event/Hit.h"
 
 #include <random>
 
 namespace bench {
+
+#ifdef USE_ROOT
+namespace fire = framework;
+#endif
 
 class Produce : public fire::Producer {
   /// the random number generator, unseeded so it produces the same results each time
@@ -16,8 +25,13 @@ class Produce : public fire::Producer {
   /// the distribution of integer values
   std::uniform_int_distribution<long int> rand_int;
  public:
+#ifdef USE_ROOT
+  Produce(const std::string& name, framework::Process& p)
+    : framework::Producer(name,p),
+#else
   Produce(const fire::config::Parameters& ps)
     : fire::Producer(ps),
+#endif
     rng{}, // this is where a seed for the RNG would be put
     rand_size{1, 100},
     rand_float{0.,100.},
@@ -43,4 +57,8 @@ class Produce : public fire::Producer {
 
 }
 
+#ifdef USE_ROOT
+DECLARE_PRODUCER_NS(bench,Produce);
+#else
 DECLARE_PROCESSOR_NS(bench,Produce);
+#endif

@@ -1,12 +1,12 @@
 # This is a sample project to test integration via add_subdirectory and CMakeConfig
 cmake_minimum_required(VERSION 3.12)
 
-project(ldmx-rootless) 
+project(ldmx-framework-bench) 
 
 # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
 # a reasonable default ($PWD/install).  
 if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-  set(CMAKE_INSTALL_PREFIX ${CMAKE_CURRENT_SOURCE_DIR}/.container-install CACHE PATH "" FORCE)
+  set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
   message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
 endif()
 
@@ -30,18 +30,43 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-find_package(fire)
-if (NOT fire_FOUND)
-  # pre-compiled version not installed
-  #   compile it here
-  #   need to promote HighFive package find
-  #   to this package scope
-  find_package(HighFive REQUIRED)
-  add_subdirectory(fire)
-  # add aliases so the Bench/CMakeLists
-  #   doesn't have to change
-  add_library(fire::h5 ALIAS h5)
-  add_library(fire::framework ALIAS framework)
+option(USE_ROOT "Use ROOT-based framework instead of HDF5-based one" OFF)
+if (USE_ROOT)
+  # Load the BuildMacros module. If loaded correctly, the variable 
+  # 'build_macros_found' will be set to the path of the module.  Otherwise, it
+  # is set to NOTFOUND.
+  list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
+  include(BuildMacros RESULT_VARIABLE build_macros_found)
+
+  # Set the python installation path
+  set(PYTHON_PACKAGE_NAME LDMX)
+  
+  # Start by building all of the classes needed for building the event bus and 
+  # ROOT dictionary. This is on by forcing the global "BUILD_EVENT_ONLY" option
+  # here.
+  set(BUILD_EVENT_ONLY ON CACHE BOOL "Build the event dictionary." FORCE)
+  
+  add_subdirectory(Bench ${CMAKE_BINARY_DIR}/BenchEvent)
+  
+  # Once the event libraries have been built, turn off the global option. 
+  set(BUILD_EVENT_ONLY OFF CACHE BOOL "Build the event dictionary." FORCE)
+  
+  # The framework has all the backend code needed to run all processors.
+  add_subdirectory(Framework)
+else()
+  find_package(fire)
+  if (NOT fire_FOUND)
+    # pre-compiled version not installed
+    #   compile it here
+    #   need to promote HighFive package find
+    #   to this package scope
+    find_package(HighFive REQUIRED)
+    add_subdirectory(fire)
+    # add aliases so the Bench/CMakeLists
+    #   doesn't have to change
+    add_library(fire::h5 ALIAS h5)
+    add_library(fire::framework ALIAS framework)
+  endif()
 endif()
 
 add_subdirectory(Bench)
