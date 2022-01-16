@@ -35,7 +35,7 @@ if (USE_ROOT)
   # Load the BuildMacros module. If loaded correctly, the variable 
   # 'build_macros_found' will be set to the path of the module.  Otherwise, it
   # is set to NOTFOUND.
-  list(APPEND CMAKE_MODULE_PATH ${ldmx-rootless_SOURCE_DIR}/cmake/)
+  list(APPEND CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake/)
   include(BuildMacros RESULT_VARIABLE build_macros_found)
 
   # Set the python installation path

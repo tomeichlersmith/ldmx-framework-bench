@@ -15,6 +15,3 @@
 # LDMX_BASE should be our current directory by default
 base .
 
-# Use dev/hdf5 container by default
-use dev latest
-

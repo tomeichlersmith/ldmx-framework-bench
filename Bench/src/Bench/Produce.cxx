@@ -1,11 +1,11 @@
 
+#include "Bench/Event/Hit.h"
+
 #ifdef USE_ROOT
 #include "Framework/EventProcessor.h"
 #else
 #include "fire/Processor.h"
 #endif
-
-#include "Bench/Event/Hit.h"
 
 #include <random>
 

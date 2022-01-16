@@ -1,0 +1,10 @@
+/**
+ * @file Version.h
+ * Pass CMake framework decision to C++
+ */
+#ifndef BENCH_VERSION_H
+#define BENCH_VERSION_H
+
+#cmakedefine USE_ROOT
+
+#endif

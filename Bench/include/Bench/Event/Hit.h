@@ -4,6 +4,9 @@
 // STL
 #include <iostream>
 
+// ROOT/HDF5 decision
+#include "Bench/Version.h"
+
 #ifdef USE_ROOT
 // ROOT
 #include "TObject.h"  //For ClassDef

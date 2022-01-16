@@ -1,6 +1,9 @@
+[submodule "cmake"]
+	path = cmake
+	url = git@github.com:LDMX-Software/cmake.git
+[submodule "fire"]
+	path = fire
+	url = git@github.com:LDMX-Software/fire.git
 [submodule "Framework"]
 	path = Framework
 	url = git@github.com:LDMX-Software/Framework.git
-[submodule "cmake"]
-	path = cmake
-	url = git@github.com:LDMX-Software/cmake

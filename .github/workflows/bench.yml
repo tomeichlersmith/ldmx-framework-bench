@@ -17,9 +17,6 @@ on:
 jobs:
   bench:
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        n_events: ${{fromJson(github.event.inputs.n_events_list)}}
     defaults:
       run:
         shell: bash
@@ -29,82 +26,12 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: 'recursive'
-        ref: 'hdf5'
     -
-      name: Bench HDF5
+      name: Benchmark
       run: |
-        echo "::group::Build and Install"
-        source rootless-env.sh
-        ldmx config
-        ldmx cmake -B build -S .
-        ldmx cmake --build build --target install
-        echo "::endgroup::"
-        echo "::group::Run Benchmark"
-        ldmx ./.github/workflows/bench.sh \
-          hdf5 ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
-        rm -r output
-        echo "::endgroup::"
-    -
-      name: Clean Repository
-      run: git clean -ffdx -e data.csv
-    - 
-      name: Get Repository
-      uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-        ref: 'root'
-        clean: false
-    -
-      name: Bench ROOT
-      run: |
-        echo "::group::Build and Install"
-        source rootless-env.sh
-        ldmx config
-        ldmx cmake -B build -S .
-        ldmx cmake --build build --target install
-        echo "::endgroup::"
-        echo "::group::Run Benchmark"
-        ldmx ./.github/workflows/bench.sh \
-          root ${{github.event.inputs.n_trials}} ${{matrix.n_events}}
-        rm -r output
-        echo "::endgroup::"
-    -
-      name: Save Benchmark Data
-      uses: actions/upload-artifact@v2
-      with:
-        name: Benchmark-${{matrix.n_events}}-Events
-        path: data.csv
-
-  plot:
-    needs: bench
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
-    steps:
-    - 
-      name: Get Repository
-      uses: actions/checkout@v2
-      with:
-        submodules: 'recursive'
-        ref: 'hdf5'
-    - 
-      name: Download Benchmarking Data
-      uses: actions/download-artifact@v2
-      with:
-        path: .
-    - 
-      name: Merge Benchmarking Data
-      run: |
-        for f in ./Benchmark-*/data.csv; do
-          if [ ! -f data.csv ]; then
-            # merged data not created? cat entire data file to include headers
-            cat ${f} | tee data.csv
-          else
-            # start with 2nd line to avoid repeating headers
-            tail -n +2 ${f} | tee -a data.csv 
-          fi
-        done
+        source env.sh
+        source Bench/run.sh
+        bench ${{github.event.inputs.n_trials}} ${{github.event.inputs.n_events_list}}
     -
       name: Setup Python
       uses: actions/setup-python@v2
@@ -116,7 +43,7 @@ jobs:
     -
       name: Plot
       run: |
-        python .github/workflows/bench_plot.py data.csv
+        python Bench/plot.py data.csv
         mv data.csv *data.pdf *data.png Bench/results/
         git config --global user.name "Bench Bot"
         git config --global user.email ${GITHUB_ACTOR}@users.noreply.github.com

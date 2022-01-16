@@ -1,11 +1,11 @@
 
+#include "Bench/Event/Hit.h"
+
 #ifdef USE_ROOT
 #include "Framework/EventProcessor.h"
 #else
 #include "fire/Processor.h"
 #endif
-
-#include "Bench/Event/Hit.h"
 
 #include <random>
 
@@ -43,7 +43,8 @@ class Recon : public fire::Producer {
       i = rand_index(rng);
     } while(i >= rand_data.size());
     
-    event.add("specialhit", rand_data.at(i));
+    Hit special = rand_data.at(i);
+    event.add("specialhit", special);
   }
 };
 
