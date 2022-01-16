@@ -78,7 +78,8 @@ __bench_help__() {
   n_events : Number of events to benchmark for both ROOT and HDF5
 
  OPTIONS:
-  --no-compiile : Don't compile the two frameworks. Assume installations are available.
+  --no-compile : Don't compile the two frameworks. Assume installations are available.
+  --no-clean   : Don't delete the output files. Not intended for regular use.
 HELP
 }
 
@@ -88,11 +89,15 @@ bench() {
     return
   fi
   local _compile=true
+  local _clean=true
   local _positional=""
   for arg in $@; do
     case $arg in
       --no-compile)
         _compile=false
+        ;;
+      --no-clean)
+        _clean=false
         ;;
       -*)
         echo "Option $arg not recognized"
@@ -115,6 +120,10 @@ bench() {
   fi
   __endgroup__; __group__ Run Benchmark
   __bench__ root $_positional || return $?
+  if ${_clean}; then
+    __endgroup__; __group__ Delete Output Files
+    rm -r output || return $?
+  fi
   __endgroup__;
   __endgroup__; __group__ Bench HDF5
   __group__ Init Environment
@@ -123,12 +132,15 @@ bench() {
     __endgroup__; __group__ Configure Build
     ldmx cmake -B build/hdf5 -S . || return $?
     __endgroup__; __group__ Build and Install
-    ldmx cmake --build build/root --target install || return $?
+    ldmx cmake --build build/hdf5 --target install || return $?
   fi
   __endgroup__; __group__ Run Benchmark
   __bench__ hdf5 $_positional || return $?
-  local rc=$?
+  if ${_clean}; then
+    __endgroup__; __group__ Delete Output Files
+    rm -r output || return $?
+  fi
   __endgroup__
-  return ${rc}
+  return 0
 }
 
