@@ -5,9 +5,9 @@ on:
   workflow_dispatch:
     inputs:
       n_events_list:
-        description: 'JSON-style listing of event numbers to benchmark'
+        description: 'Space-separated listing of event numbers to benchmark'
         required: false
-        default: '[1,10,100,1000,10000,100000]'
+        default: '1 10 100 1000 10000 100000'
       n_trials:
         descrption: 'Number of trials per event number to do for benchmark average'
         required: false
