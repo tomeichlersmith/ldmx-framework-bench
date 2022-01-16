@@ -46,7 +46,7 @@ __bench__() {
   local runner=$(__runner__)
   local n_events
   for n_events in $@; do
-    echo "Benchmarking ${n_events} Events"
+    echo "  benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} ${tag}_produce.py ${n_events})
     [[ "$?" != "0" ]] && { echo "fire produce.py Errored Out!"; return 1; }
     local produce_output="output/output_${n_events}"
@@ -71,12 +71,14 @@ __bench_help__() {
   cat << HELP
 
  USAGE:
-  bench <trials> <n_events_1> [n_events_2 ...]
+  bench [options] <trials> <n_events_1> [n_events_2 ...]
 
  ARGUMENTS:
   trails   : Number of trials to run for each N_EVENTS
   n_events : Number of events to benchmark for both ROOT and HDF5
 
+ OPTIONS:
+  --no-compiile : Don't compile the two frameworks. Assume installations are available.
 HELP
 }
 
@@ -85,25 +87,46 @@ bench() {
     __bench_help__
     return
   fi
+  local _compile=true
+  local _positional=""
+  for arg in $@; do
+    case $arg in
+      --no-compile)
+        _compile=false
+        ;;
+      -*)
+        echo "Option $arg not recognized"
+        return 1
+        ;;
+      *)
+        _positional="${_positional} $arg"
+        ;;
+    esac
+  done
+
   __group__ Bench ROOT
   __group__ Init Environment
   ldmx use dev latest || return $?
-  __endgroup__; __group__ Configure Build
-  ldmx cmake -B build/root -S . -DUSE_ROOT=ON || return $?
-  __endgroup__; __group__ Build and Install
-  ldmx cmake --build build/root --target install || return $?
+  if ${_compile}; then
+    __endgroup__; __group__ Configure Build
+    ldmx cmake -B build/root -S . -DUSE_ROOT=ON || return $?
+    __endgroup__; __group__ Build and Install
+    ldmx cmake --build build/root --target install || return $?
+  fi
   __endgroup__; __group__ Run Benchmark
-  __bench__ root $@ || return $?
+  __bench__ root $_positional || return $?
   __endgroup__;
   __endgroup__; __group__ Bench HDF5
   __group__ Init Environment
   ldmx use dev hdf5 || return $?
-  __endgroup__; __group__ Configure Build
-  ldmx cmake -B build/hdf5 -S . -DUSE_ROOT=OFF || return $?
-  __endgroup__; __group__ Build and Install
-  ldmx cmake --build build/root --target install || return $?
+  if ${_compile}; then
+    __endgroup__; __group__ Configure Build
+    ldmx cmake -B build/hdf5 -S . || return $?
+    __endgroup__; __group__ Build and Install
+    ldmx cmake --build build/root --target install || return $?
+  fi
   __endgroup__; __group__ Run Benchmark
-  __bench__ hdf5 $@ || return $?
+  __bench__ hdf5 $_positional || return $?
   local rc=$?
   __endgroup__
   return ${rc}

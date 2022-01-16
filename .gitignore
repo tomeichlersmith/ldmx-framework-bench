@@ -16,6 +16,8 @@ ldmx-sw**
 **.ipynb_checkpoints**
 *.root
 *.pyc
+output**
+*.csv
 
 # ignore cmake-generate header
 Bench/include/Bench/Version.h

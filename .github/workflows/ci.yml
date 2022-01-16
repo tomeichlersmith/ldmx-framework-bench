@@ -28,18 +28,7 @@ jobs:
       name: Test the Build
       run: |
         echo "::group::Init Environment"
-        source rootless-env.sh
+        source env.sh
+        source Bench/run.sh
         echo "::endgroup::"
-        echo "::group::Configure Build"
-        ldmx cmake -B build -S .
-        echo "::endgroup::"
-        echo "::group::Build and Install"
-        ldmx cmake --build build --target install
-        echo "::endgroup::"
-        echo "::group::Production Mode"
-        ldmx fire produce.py 10
-        echo "::endgroup::"
-        echo "::group::Recon Mode"
-        ldmx fire recon.py output/output_10
-        echo "::endgroup::"
-
+        bench 1 10

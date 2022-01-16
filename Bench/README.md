@@ -33,3 +33,14 @@ source env.sh
 source Bench/run.sh
 bench 10 1 10 42
 ```
+
+The plotting script assumes you have `matplotlib` and `pandas` available.
+You can install them quickly with `pip`.
+```
+python3 -m pip install matplotlib pandas
+```
+
+And then you can generate plots from the data the `bench` command generated.
+```
+python3 Bench/plot.py data.csv
+```
