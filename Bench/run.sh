@@ -122,7 +122,7 @@ bench() {
   __bench__ root $_positional || return $?
   if ${_clean}; then
     __endgroup__; __group__ Delete Output Files
-    rm -r output || return $?
+    rm -vr output || return $?
   fi
   __endgroup__;
   __endgroup__; __group__ Bench HDF5
@@ -138,7 +138,7 @@ bench() {
   __bench__ hdf5 $_positional || return $?
   if ${_clean}; then
     __endgroup__; __group__ Delete Output Files
-    rm -r output || return $?
+    rm -vr output || return $?
   fi
   __endgroup__
   return 0
