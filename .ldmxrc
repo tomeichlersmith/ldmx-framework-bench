@@ -15,3 +15,5 @@
 # LDMX_BASE should be our current directory by default
 base .
 
+# we don't define which image to run on purpose
+#   depends on which framework we are building
