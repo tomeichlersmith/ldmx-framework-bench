@@ -20,8 +20,6 @@ stat output/*
 
 To obtain how large the output data file is.
 
-[Latest Results](results)
-
 ## Run Locally
 
 If you want to run this benchmarking test on your own machine, 
@@ -44,3 +42,12 @@ And then you can generate plots from the data the `bench` command generated.
 ```
 python3 Bench/plot.py data.csv
 ```
+
+## Results
+The latest results were generated with a GitHub action.
+This limits the number of events we can sample because of the 6 hour time limit.
+We still are able to compare up to 100k events being written and read.
+
+![Production Mode](results/production_data.png)
+
+![Reconstruction Mode](results/recon_data.png)
