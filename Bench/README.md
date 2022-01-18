@@ -47,7 +47,13 @@ python3 Bench/plot.py data.csv
 The latest results were generated with a GitHub action.
 This limits the number of events we can sample because of the 6 hour time limit.
 We still are able to compare up to 100k events being written and read.
+The results generated with a GitHub action using docker as the container runner.
 
 ![Production Mode](results/production_data.png)
-
 ![Reconstruction Mode](results/recon_data.png)
+
+Results generated manually up to 1M events being written/read were done on a computer
+at UMN using singularity.
+
+![Production Mode](results/umn_production_data.png)
+![Reconstruction Mode](results/umn_recon_data.png)
