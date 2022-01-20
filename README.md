@@ -26,7 +26,9 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     That is incredibly quick, flexible, and powerful.
 - Translation layer for intermediate stage?
   - Absolutely possible to write a ROOT -> HDF5 converting tool.
-    Is it useful? Our simulated data becomes stale (almost useless) pretty quickly and we end up deleting it.
+  - Has already been done for arithmetic types [HDF5Utils from ATLAS](https://gitlab.cern.ch/atlas/athena/tree/21.2/PhysicsAnalysis/AnalysisCommon/HDF5Utils)
+    and [histograms](https://github.com/dguest/th2hdf5).
+  - Is it useful? Our simulated data becomes stale (almost useless) pretty quickly and we end up deleting it.
     The container allows for re-generating older samples if need be.
 - DAQ?
   - [HDF5 and h5py have a MPI interface](https://docs.h5py.org/en/stable/mpi.html) which could be used in conjunction with Rogue to write out data from multiple DAQ servers at once.
