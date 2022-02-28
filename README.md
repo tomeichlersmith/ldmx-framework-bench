@@ -45,7 +45,9 @@ Trying to drag ldmx-sw into the 21st century by removing our dependency on the a
     - Lack of good parallel access: ROOT lacks this and HDF5 and its python package h5py have improved greatly upon it
     - Various limitations and bugs: _caution, sarcasm ahead_ If the phrase _various limitations and bugs_ doesn't describe the ROOT library, I don't know what does. Of course both ROOT and HDF5 will have limitations and bugs. The fact that HDF5 is more widely used means that avoiding the limitations and getting the bugs patches will be easier.
   - This post also points out that the users of their library will still need to decide on a file format, which makes sense for them. This library is designed to be a set of common tools for similar experiments and therefore they are choosing to avoid picking a file format to support.
-
+- Why not just use [uproot](https://github.com/scikit-hep/uproot4) to allow more modern access to data in ROOT files?
+  - Many in HEP (and our collaboration) use uproot to read in our data files and do their analyses. Personally, I also use uproot occasionally and think it is a good package and good solution when the data to be analyzed is already in ROOT files.
+  - The other reasons for transitioning to HDF5 besides more moden access to data is what comes into play in this question. Specifically, the easier development/maintenance of the framework (in my opinion) and the higher performance of the updated framework (quantitative: results in [Bench](Bench)) are good reasons _alone_ to move to an HDF5-based framework and data format compared to ROOT.
 
 ## Environment Notes
 
