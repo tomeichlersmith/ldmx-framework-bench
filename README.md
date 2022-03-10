@@ -1,10 +1,11 @@
-# ldmx-rootless
+# ldmx-framework-bench
 
 <a href="https://github.com/tomeichlersmith/ldmx-rootless/actions" alt="Actions">
     <img src="https://github.com/tomeichlersmith/ldmx-rootless/workflows/CI/badge.svg" />
 </a>
 
 Trying to drag ldmx-sw into the 21st century by removing our dependency on the archaic ROOT.
+This repository is specifically geared towards benchmarks comparing the ROOT-based and HDF5-based frameworks.
 
 ## Q&A
 - Why?
