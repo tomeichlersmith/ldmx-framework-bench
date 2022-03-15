@@ -15,7 +15,7 @@ ldmx time fire config.py <num-events>
 To time how long the processing takes, and then
 
 ```bash
-stat output/*
+stat output/output_<num-events>.<ext>
 ```
 
 To obtain how large the output data file is.

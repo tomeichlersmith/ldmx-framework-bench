@@ -32,7 +32,7 @@ __runner__() {
 
 # Print the five inputs into the five columns of a CSV line
 __print_csv_line__() {
-  printf "%s,%s,%s,%s,%s,%s\n" $@
+  printf "%s,%s,%s,%s,%s,%s,%s\n" $@
 }
 
 # input trials per n_events run and then squence of n_events to run
@@ -42,20 +42,18 @@ __print_csv_line__() {
 __bench__() {
   local tag=$1; shift
   local trials=$1; shift
-  [ -f data.csv ] || __print_csv_line__ runner serializer mode events time size | tee data.csv
+  [ -f data.csv ] || __print_csv_line__ runner writer reader mode events time size | tee data.csv
   local runner=$(__runner__)
   local n_events
   for n_events in $@; do
     echo "  benchmarking ${n_events} Events"
     local t=$(__time__ ${trials} ${tag}_produce.py ${n_events})
-    [[ "$?" != "0" ]] && { echo "fire produce.py Errored Out!"; return 1; }
-    local produce_output="output/output_${n_events}"
+    local produce_output="output/output_${n_events}.${tag}"
     local s=$(stat -c "%s" ${produce_output})
-    __print_csv_line__ ${runner} ${tag} produce ${n_events} ${t} ${s} | tee -a data.csv
+    __print_csv_line__ ${runner} ${tag} ${tag} produce ${n_events} ${t} ${s} | tee -a data.csv
     t=$(__time__ ${trials} ${tag}_recon.py ${produce_output})
-    [[ "$?" != "0" ]] && { echo "fire recon.py Errored Out!"; return 1; }
-    s=$(stat -c "%s" output/recon_output_${n_events}) 
-    __print_csv_line__ ${runner} ${tag} recon ${n_events} ${t} ${s} | tee -a data.csv
+    s=$(stat -c "%s" output/recon_output_${n_events}.${tag}) 
+    __print_csv_line__ ${runner} ${tag} ${tag} recon ${n_events} ${t} ${s} | tee -a data.csv
   done
 }
 
@@ -78,8 +76,11 @@ __bench_help__() {
   n_events : Number of events to benchmark for both ROOT and HDF5
 
  OPTIONS:
+  -h, --help   : Print this help and exit
   --no-compile : Don't compile the two frameworks. Assume installations are available.
   --no-clean   : Don't delete the output files. Not intended for regular use.
+  --no-interop : Don't test recon mode of HDF5 framework using ROOT files as inputs
+
 HELP
 }
 
@@ -90,7 +91,8 @@ bench() {
   fi
   local _compile=true
   local _clean=true
-  local _positional=""
+  local _interop=true
+  local _positional=()
   for arg in $@; do
     case $arg in
       --no-compile)
@@ -99,12 +101,19 @@ bench() {
       --no-clean)
         _clean=false
         ;;
+      --no-interop)
+        _interop=false
+        ;;
+      -h|--help)
+        __bench_help__
+        return 0
+        ;;
       -*)
         echo "Option $arg not recognized"
         return 1
         ;;
       *)
-        _positional="${_positional} $arg"
+        _positional+=("$arg")
         ;;
     esac
   done
@@ -114,16 +123,13 @@ bench() {
   ldmx use dev root-hdf5 || return $?
   if ${_compile}; then
     __endgroup__; __group__ Configure Build
-    ldmx cmake -B build/root -S . -DUSE_ROOT_FRAMEWORK=ON || return $?
+    ldmx cmake -B build/root -S . -DCMAKE_INSTALL_PREFIX=install/root -DUSE_ROOT_FRAMEWORK=ON || return $?
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/root --target install || return $?
   fi
+  ln -sfT install/root .container-install
   __endgroup__; __group__ Run Benchmark
-  __bench__ root $_positional || return $?
-  if ${_clean}; then
-    __endgroup__; __group__ Delete Output Files
-    rm -vr output || return $?
-  fi
+  __bench__ root ${_positional[@]} || return $?
   __endgroup__;
   __endgroup__; __group__ Bench HDF5
   __group__ Init Environment
@@ -134,8 +140,19 @@ bench() {
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/hdf5 --target install || return $?
   fi
+  ln -sfT install/hdf5 .container-install
+  if ${_interop}; then
+    local trials=${_positional[0]}
+    local runner=$(__runner__)
+    for n_events in ${_positional[@]:1}; do
+      echo "  interop benchmarking ${n_events} Events"
+      t=$(__time__ ${trials} hdf5_recon.py output/output_${n_events}.root)
+      s=$(stat -c "%s" output/recon_output_${n_events}_root.hdf5) 
+      __print_csv_line__ ${runner} root hdf5 recon ${n_events} ${t} ${s} | tee -a data.csv
+    done
+  fi
   __endgroup__; __group__ Run Benchmark
-  __bench__ hdf5 $_positional || return $?
+  __bench__ hdf5 ${_positional[@]} || return $?
   if ${_clean}; then
     __endgroup__; __group__ Delete Output Files
     rm -vr output || return $?
