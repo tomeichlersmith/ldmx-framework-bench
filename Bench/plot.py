@@ -15,7 +15,8 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     events : numpy.array
         N events values benchmarked at for both hdf5 and root data
     """
-    fig, ((raw_time,raw_size),(ratio_time,ratio_size)) = plt.subplots(ncols=2,nrows=2, sharex='col')
+    fig, ((raw_time,raw_size),(ratio_time,ratio_size)) = plt.subplots(ncols=2,nrows=2, 
+        sharex='col', gridspec_kw = { 'height_ratios' : [ 3, 1] })
     fig.set_size_inches(11,7)
     plt.suptitle(f'Comparison Between HDF5 and ROOT : {run_mode} Mode')
     plt.subplots_adjust(wspace=0.3, hspace=0.)
@@ -29,7 +30,6 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     ratio_time.set_xscale('log')
     ratio_time.set_xlabel('N Events')
     ratio_time.set_ylabel('hdf5 Time / root Time')
-    ratio_time.set_ylim(bottom=0.,top=1.1)
     ratio_time.plot(events, hdf5_time/root_time, 
                 label='hdf5/root', color = 'black')
 
@@ -41,7 +41,6 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     ratio_size.set_xscale('log')
     ratio_size.set_xlabel('N Events')
     ratio_size.set_ylabel('hdf5 Size / root Size')
-    ratio_size.set_ylim(bottom=0.5,top=5.5)
     ratio_size.plot(events, hdf5_size/root_size,
                color='black')
 
