@@ -1,7 +1,7 @@
 
 #include "Bench/Event/Hit.h"
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 #include "Framework/EventProcessor.h"
 #else
 #include "fire/Processor.h"
@@ -11,7 +11,7 @@
 
 namespace bench {
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 namespace fire = framework;
 #endif
 
@@ -21,7 +21,7 @@ class Recon : public fire::Producer {
   /// the distribution of sizes
   std::uniform_int_distribution<std::size_t> rand_index;
  public:
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
   Recon(const std::string& name, framework::Process& p)
     : framework::Producer(name,p),
 #else
@@ -33,7 +33,7 @@ class Recon : public fire::Producer {
   {}
   ~Recon() = default;
   void produce(fire::Event& event) final override {
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
     const auto& rand_data = event.getCollection<Hit>("randdata");
 #else
     const auto& rand_data = event.get<std::vector<Hit>>("randdata");
@@ -50,7 +50,7 @@ class Recon : public fire::Producer {
 
 }
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 DECLARE_PRODUCER_NS(bench,Recon);
 #else
 DECLARE_PROCESSOR_NS(bench,Recon);

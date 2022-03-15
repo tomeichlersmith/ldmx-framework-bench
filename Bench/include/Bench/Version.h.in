@@ -5,6 +5,6 @@
 #ifndef BENCH_VERSION_H
 #define BENCH_VERSION_H
 
-#cmakedefine USE_ROOT
+#cmakedefine USE_ROOT_FRAMEWORK
 
 #endif

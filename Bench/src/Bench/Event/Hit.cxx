@@ -1,6 +1,6 @@
 #include "Bench/Event/Hit.h"
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK || fire_USE_ROOT
 ClassImp(bench::Hit);
 #endif
 
@@ -21,7 +21,7 @@ void Hit::Print() const {
             << " }" << std::endl;
 }
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 void Hit::Clear() {
 #else
 void Hit::clear() {

@@ -7,12 +7,15 @@
 // ROOT/HDF5 decision
 #include "Bench/Version.h"
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 // ROOT
 #include "TObject.h"  //For ClassDef
 #else
 // H5
-#include "fire/h5/DataSet.h"
+#include "fire/io/Data.h"
+#ifdef fire_USE_ROOT
+#include "TObject.h"
+#endif
 #endif
 
 namespace bench {
@@ -41,7 +44,7 @@ class Hit {
   /**
    * Reset the Hit object.
    */
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
   void Clear();
 #else
   void clear();
@@ -216,14 +219,17 @@ class Hit {
    */
   int pdgID_{0};
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
   /**
    * The ROOT class definition.
    */
   ClassDef(Hit, 1);
 #else
-  friend class fire::h5::DataSet<Hit>;
-  void attach(fire::h5::DataSet<Hit>& set) {
+#ifdef fire_USE_ROOT
+  ClassDef(Hit, 1);
+#endif
+  friend class fire::io::Data<Hit>;
+  void attach(fire::io::Data<Hit>& set) {
     set.attach("layerID", layerID_);
     set.attach("moduleID", moduleID_);
     set.attach("time", time_);

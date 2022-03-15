@@ -23,8 +23,8 @@ if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-option(USE_ROOT "Use ROOT-based framework instead of HDF5-based one" OFF)
-if (USE_ROOT)
+option(USE_ROOT_FRAMEWORK "Use ROOT-based framework instead of HDF5-based one" OFF)
+if (USE_ROOT_FRAMEWORK)
   # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
   # a reasonable default ($PWD/install).  
   if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)

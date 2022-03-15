@@ -1,7 +1,7 @@
 
 #include "Bench/Event/Hit.h"
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 #include "Framework/EventProcessor.h"
 #else
 #include "fire/Processor.h"
@@ -11,7 +11,7 @@
 
 namespace bench {
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 namespace fire = framework;
 #endif
 
@@ -25,7 +25,7 @@ class Produce : public fire::Producer {
   /// the distribution of integer values
   std::uniform_int_distribution<long int> rand_int;
  public:
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
   Produce(const std::string& name, framework::Process& p)
     : framework::Producer(name,p),
 #else
@@ -57,7 +57,7 @@ class Produce : public fire::Producer {
 
 }
 
-#ifdef USE_ROOT
+#ifdef USE_ROOT_FRAMEWORK
 DECLARE_PRODUCER_NS(bench,Produce);
 #else
 DECLARE_PROCESSOR_NS(bench,Produce);

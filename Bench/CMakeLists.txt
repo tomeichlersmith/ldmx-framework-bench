@@ -8,7 +8,7 @@ project(Bench DESCRIPTION "Benchmarking fire" LANGUAGES CXX)
 configure_file(${PROJECT_SOURCE_DIR}/include/Bench/Version.h.in 
                ${PROJECT_SOURCE_DIR}/include/Bench/Version.h)
 
-if (USE_ROOT)
+if (USE_ROOT_FRAMEWORK)
   option(BUILD_EVENT_ONLY "Build the event library." ON)
   if(BUILD_EVENT_ONLY)
     # Search and configure ROOT
