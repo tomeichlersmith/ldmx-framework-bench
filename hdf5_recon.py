@@ -8,14 +8,9 @@ p.input_files = sys.argv[1:]
 
 import os
 os.makedirs('output',exist_ok=True)
-p.output_file = fire.cfg.OutputFile(
-        f'output/recon_{os.path.basename(p.input_files[0])}',
-        rows_per_chunk = 10000,
-        compression_level = 6,
-        shuffle = False
-        )
+p.output_file = fire.cfg.OutputFile(f'output/recon_{os.path.basename(p.input_files[0])}')
 
 # keep everything for better comparison to old framework
 p.keep('.*')
 
-p.sequence = [ fire.cfg.Producer('make','bench::Recon','Bench') ]
+p.sequence = [ fire.cfg.Processor('make','bench::Recon','Bench') ]

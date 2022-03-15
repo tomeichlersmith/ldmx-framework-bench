@@ -111,10 +111,10 @@ bench() {
 
   __group__ Bench ROOT
   __group__ Init Environment
-  ldmx use dev latest || return $?
+  ldmx use dev root-hdf5 || return $?
   if ${_compile}; then
     __endgroup__; __group__ Configure Build
-    ldmx cmake -B build/root -S . -DUSE_ROOT=ON || return $?
+    ldmx cmake -B build/root -S . -DUSE_ROOT_FRAMEWORK=ON || return $?
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/root --target install || return $?
   fi
@@ -127,7 +127,7 @@ bench() {
   __endgroup__;
   __endgroup__; __group__ Bench HDF5
   __group__ Init Environment
-  ldmx use dev hdf5 || return $?
+  ldmx use dev root-hdf5 || return $?
   if ${_compile}; then
     __endgroup__; __group__ Configure Build
     ldmx cmake -B build/hdf5 -S . || return $?

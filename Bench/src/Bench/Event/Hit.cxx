@@ -1,6 +1,6 @@
 #include "Bench/Event/Hit.h"
 
-#ifdef USE_ROOT_FRAMEWORK || fire_USE_ROOT
+#if defined USE_ROOT_FRAMEWORK || defined fire_USE_ROOT
 ClassImp(bench::Hit);
 #endif
 

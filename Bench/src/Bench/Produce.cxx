@@ -12,10 +12,10 @@
 namespace bench {
 
 #ifdef USE_ROOT_FRAMEWORK
-namespace fire = framework;
+class Produce : public framework::Producer {
+#else
+class Produce : public fire::Processor {
 #endif
-
-class Produce : public fire::Producer {
   /// the random number generator, unseeded so it produces the same results each time
   std::mt19937 rng;
   /// the distribution of sizes
@@ -30,7 +30,7 @@ class Produce : public fire::Producer {
     : framework::Producer(name,p),
 #else
   Produce(const fire::config::Parameters& ps)
-    : fire::Producer(ps),
+    : fire::Processor(ps),
 #endif
     rng{}, // this is where a seed for the RNG would be put
     rand_size{1, 100},
@@ -38,7 +38,11 @@ class Produce : public fire::Producer {
     rand_int{-100,100}
   {}
   ~Produce() = default;
-  void produce(fire::Event& event) final override {
+#ifdef USE_ROOT_FRAMEWORK
+  void produce(framework::Event& event) final override {
+#else
+  void process(fire::Event& event) final override {
+#endif
     std::vector<Hit> rand_data;
     rand_data.resize(rand_size(rng));
     for (Hit& val : rand_data) {
@@ -60,5 +64,5 @@ class Produce : public fire::Producer {
 #ifdef USE_ROOT_FRAMEWORK
 DECLARE_PRODUCER_NS(bench,Produce);
 #else
-DECLARE_PROCESSOR_NS(bench,Produce);
+DECLARE_PROCESSOR(bench::Produce);
 #endif

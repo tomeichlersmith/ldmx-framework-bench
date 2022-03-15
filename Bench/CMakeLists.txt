@@ -28,11 +28,18 @@ if (USE_ROOT_FRAMEWORK)
     dependencies Framework::Framework Bench::Event)
   
 else()
-  find_package(fire)
-  
   add_library(Bench_Event SHARED src/Bench/Event/Hit.cxx)
-  target_include_directories(Bench_Event PUBLIC include)
-  target_link_libraries(Bench_Event PUBLIC fire::h5)
+  target_link_libraries(Bench_Event PUBLIC fire::io)
+  target_include_directories(Bench_Event PUBLIC 
+    "$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>"
+    "$<INSTALL_INTERFACE:${CMAKE_INSTALL_PREFIX}/include>")
+  if (fire_USE_ROOT)
+    root_generate_dictionary(Bench_EventDict
+      include/Bench/Event/Hit.h
+      LINKDEF ${CMAKE_CURRENT_SOURCE_DIR}/include/Bench/Event/LinkDef.h
+      MODULE Bench_Event)
+    install(FILES ${CMAKE_CURRENT_BINARY_DIR}/Bench_Event_rdict.pcm DESTINATION lib)
+  endif()
   
   add_library(Bench SHARED 
     src/Bench/Produce.cxx

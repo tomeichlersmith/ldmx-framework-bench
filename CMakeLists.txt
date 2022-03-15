@@ -17,6 +17,13 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE STRING "Choose the type of build." FORCE)
 endif()
 
+# If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
+# a reasonable default ($PWD/install).  
+if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/.container-install CACHE PATH "" FORCE)
+  message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
+endif()
+
 if(NOT DEFINED CMAKE_CXX_STANDARD)
   set(CMAKE_CXX_STANDARD 17)
   set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -25,12 +32,6 @@ endif()
 
 option(USE_ROOT_FRAMEWORK "Use ROOT-based framework instead of HDF5-based one" OFF)
 if (USE_ROOT_FRAMEWORK)
-  # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
-  # a reasonable default ($PWD/install).  
-  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/ldmx-sw/install CACHE PATH "" FORCE)
-    message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
-  endif()
 
   # Load the BuildMacros module. If loaded correctly, the variable 
   # 'build_macros_found' will be set to the path of the module.  Otherwise, it
@@ -54,14 +55,7 @@ if (USE_ROOT_FRAMEWORK)
   # The framework has all the backend code needed to run all processors.
   add_subdirectory(Framework)
 else()
-  # If an install location hasn't been set via CMAKE_INSTALL_PREFIX, set it to 
-  # a reasonable default ($PWD/install).  
-  if (CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
-    set(CMAKE_INSTALL_PREFIX $ENV{LDMX_BASE}/.container-install CACHE PATH "" FORCE)
-    message(STATUS "Install directory set to ${CMAKE_INSTALL_PREFIX}")
-  endif()
-
-  find_package(fire)
+  find_package(fire QUIET)
   if (NOT fire_FOUND)
     # pre-compiled version not installed
     #   compile it here
@@ -71,7 +65,7 @@ else()
     add_subdirectory(fire)
     # add aliases so the Bench/CMakeLists
     #   doesn't have to change
-    add_library(fire::h5 ALIAS h5)
+    add_library(fire::io ALIAS io)
     add_library(fire::framework ALIAS framework)
   endif()
 endif()

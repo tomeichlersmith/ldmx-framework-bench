@@ -12,10 +12,10 @@
 namespace bench {
 
 #ifdef USE_ROOT_FRAMEWORK
-namespace fire = framework;
+class Recon : public framework::Producer {
+#else
+class Recon : public fire::Processor {
 #endif
-
-class Recon : public fire::Producer {
   /// the random number generator, unseeded so it produces the same results each time
   std::mt19937 rng;
   /// the distribution of sizes
@@ -26,16 +26,17 @@ class Recon : public fire::Producer {
     : framework::Producer(name,p),
 #else
   Recon(const fire::config::Parameters& ps)
-    : fire::Producer(ps),
+    : fire::Processor(ps),
 #endif
     rng{}, // this is where a seed for the RNG would be put
     rand_index{0, 99}
   {}
   ~Recon() = default;
-  void produce(fire::Event& event) final override {
 #ifdef USE_ROOT_FRAMEWORK
+  void produce(framework::Event& event) final override {
     const auto& rand_data = event.getCollection<Hit>("randdata");
 #else
+  void process(fire::Event& event) final override {
     const auto& rand_data = event.get<std::vector<Hit>>("randdata");
 #endif
     std::size_t i;
@@ -53,5 +54,5 @@ class Recon : public fire::Producer {
 #ifdef USE_ROOT_FRAMEWORK
 DECLARE_PRODUCER_NS(bench,Recon);
 #else
-DECLARE_PROCESSOR_NS(bench,Recon);
+DECLARE_PROCESSOR(bench::Recon);
 #endif
