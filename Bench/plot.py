@@ -7,8 +7,9 @@ of the same name and then copied here for automation.
 
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 
-def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
+def bench_plot(data, run_mode, selections) :
     """
     Parameters
     ----------
@@ -21,28 +22,47 @@ def bench_plot(events, hdf5_time, hdf5_size, root_time, root_size, run_mode) :
     plt.suptitle(f'Comparison Between HDF5 and ROOT : {run_mode} Mode')
     plt.subplots_adjust(wspace=0.3, hspace=0.)
 
+    events = data['events'].unique()
+
     raw_time.set_ylabel('Real Time [s]')
     raw_time.set_yscale('log')
-    raw_time.plot(events, hdf5_time, label='hdf5')
-    raw_time.plot(events, root_time, label='root')
+    for name, sl in selections.items() :
+        raw_time.plot(events, data[sl]['time'], label=name)
     raw_time.legend()
 
     ratio_time.set_xscale('log')
     ratio_time.set_xlabel('N Events')
-    ratio_time.set_ylabel('hdf5 Time / root Time')
-    ratio_time.plot(events, hdf5_time/root_time, 
-                label='hdf5/root', color = 'black')
+    first_key = None
+    first_sl = None
+    for name, sl in selections.items() :
+        if first_key is None :
+            first_key = name
+            first_sl = sl
+            ratio_time.plot(events, np.ones(len(events)))
+        else :
+            ratio_time.plot(events, data[sl]['time'].to_numpy()/data[first_sl]['time'].to_numpy(),
+                            label=name)
+    ratio_time.set_ylabel('Ratio to {first_key}')
 
     raw_size.set_ylabel('Output File Size [MB]')
     raw_size.set_yscale('log')
-    raw_size.plot(events, hdf5_size/1e6)
-    raw_size.plot(events, root_size/1e6)
+    for name, sl in selections.items() :
+        raw_size.plot(events, data[sl]['size']/1e6, label=name)
+    raw_size.legend()
 
     ratio_size.set_xscale('log')
     ratio_size.set_xlabel('N Events')
-    ratio_size.set_ylabel('hdf5 Size / root Size')
-    ratio_size.plot(events, hdf5_size/root_size,
-               color='black')
+    first_key = None
+    first_sl = None
+    for name, sl in selections.items() :
+        if first_key is None :
+            first_key = name
+            first_sl = sl
+            ratio_size.plot(events, np.ones(len(events)))
+        else :
+            ratio_size.plot(events, data[sl]['size'].to_numpy()/data[first_sl]['size'].to_numpy(), 
+                            label=name)
+    ratio_size.set_ylabel('Ratio to {first_key}')
 
 def main() :
     import sys, os
@@ -58,27 +78,21 @@ def main() :
 
         data = pd.read_csv(data_file)
     
-        prod = data[data['mode']=='produce']
-    
-        bench_plot(
-            prod[prod['serializer']=='hdf5']['events'].to_numpy(),
-            prod[prod['serializer']=='hdf5']['time'].to_numpy(),
-            prod[prod['serializer']=='hdf5']['size'].to_numpy(),
-            prod[prod['serializer']=='root']['time'].to_numpy(),
-            prod[prod['serializer']=='root']['size'].to_numpy(),
-            'Production')
+        bench_plot(data,'Production',
+            {
+              'root' : (data['mode']=='produce')&(data['writer']=='root')&(data['reader']=='root'),
+              'hdf5' : (data['mode']=='produce')&(data['writer']=='hdf5')&(data['reader']=='hdf5')
+            })
         plt.savefig('production_'+data_file.replace('csv','pdf'))
         plt.savefig('production_'+data_file.replace('csv','png'))
         plt.clf()
 
-        reco = data[data['mode']=='recon']
-        bench_plot(
-            reco[reco['serializer']=='hdf5']['events'].to_numpy(),
-            reco[reco['serializer']=='hdf5']['time'].to_numpy(),
-            reco[reco['serializer']=='hdf5']['size'].to_numpy(),
-            reco[reco['serializer']=='root']['time'].to_numpy(),
-            reco[reco['serializer']=='root']['size'].to_numpy(),
-            'Reconstruction')
+        bench_plot(data, 'Reconstruction',
+            {
+              'root reco root' : (data['mode']=='recon')&(data['writer']=='root')&(data['reader']=='root'),
+              'hdf5 reco root' : (data['mode']=='recon')&(data['writer']=='root')&(data['reader']=='hdf5'),
+              'hdf5 reco hdf5' : (data['mode']=='recon')&(data['writer']=='hdf5')&(data['reader']=='hdf5')
+            })
         plt.savefig('recon_'+data_file.replace('csv','pdf'))
         plt.savefig('recon_'+data_file.replace('csv','png'))
         plt.clf()
