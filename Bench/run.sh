@@ -77,8 +77,9 @@ __bench_help__() {
 
  OPTIONS:
   -h, --help   : Print this help and exit
-  --no-compile : Don't compile the two frameworks. Assume installations are available.
-  --no-clean   : Don't delete the output files. Not intended for regular use.
+  --no-compile : Don't compile the two frameworks. Assume installations are available 
+                 at ${LDMX_BASE}/install/root and ${LDMX_BASE}/install/hdf5.
+  --no-clean   : Don't delete the output files (which are not intended for regular use)
   --no-interop : Don't test recon mode of HDF5 framework using ROOT files as inputs
 
 HELP
@@ -136,7 +137,7 @@ bench() {
   ldmx use dev root-hdf5 || return $?
   if ${_compile}; then
     __endgroup__; __group__ Configure Build
-    ldmx cmake -B build/hdf5 -S . || return $?
+    ldmx cmake -B build/hdf5 -S . -DCMAKE_INSTALL_PREFIX=install/hdf5 || return $?
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/hdf5 --target install || return $?
   fi
