@@ -42,7 +42,7 @@ def bench_plot(data, run_mode, selections) :
         else :
             ratio_time.plot(events, data[sl]['time'].to_numpy()/data[first_sl]['time'].to_numpy(),
                             label=name)
-    ratio_time.set_ylabel('Ratio to {first_key}')
+    ratio_time.set_ylabel(f'Ratio to {first_key}')
 
     raw_size.set_ylabel('Output File Size [MB]')
     raw_size.set_yscale('log')
@@ -62,7 +62,7 @@ def bench_plot(data, run_mode, selections) :
         else :
             ratio_size.plot(events, data[sl]['size'].to_numpy()/data[first_sl]['size'].to_numpy(), 
                             label=name)
-    ratio_size.set_ylabel('Ratio to {first_key}')
+    ratio_size.set_ylabel(f'Ratio to {first_key}')
 
 def main() :
     import sys, os
