@@ -128,7 +128,7 @@ bench() {
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/root --target install || return $?
   fi
-  ln -sfT install/root .container-install
+  ln -sfT $(pwd -P)/install/root ${LDMX_BASE}/.container-install
   __endgroup__; __group__ Run Benchmark
   __bench__ root ${_positional[@]} || return $?
   __endgroup__;
@@ -141,7 +141,7 @@ bench() {
     __endgroup__; __group__ Build and Install
     ldmx cmake --build build/hdf5 --target install || return $?
   fi
-  ln -sfT install/hdf5 .container-install
+  ln -sfT $(pwd -P)/install/hdf5 ${LDMX_BASE}/.container-install
   if ${_interop}; then
     local trials=${_positional[0]}
     local runner=$(__runner__)
